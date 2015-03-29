@@ -224,7 +224,7 @@ namespace MathExtension
 		/// <returns>A specified number raised to a specified power.</returns>
 		public static int Pow(int x, uint y)
 		{
-			int ret = 1;
+			var ret = 1;
 			while (y > 0)
 			{
 				if ((y & 1) == 1)
@@ -234,6 +234,44 @@ namespace MathExtension
 			}
 			return ret;
 		}
+
+        /// <summary>
+        /// Returns a specified number raised to a specified power.
+        /// </summary>
+        /// <param name="x">An integer to be raised to a power.</param>
+        /// <param name="y">A positive integer that specifies the power to be raised to.</param>
+        /// <returns>A specified number raised to a specified power.</returns>
+        public static long Pow(long x, uint y)
+        {
+            var ret = 1L;
+            while (y > 0)
+            {
+                if ((y & 1) == 1)
+                    ret *= x;
+                x *= x;
+                y >>= 1;
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Returns a specified number raised to a specified power.
+        /// </summary>
+        /// <param name="x">An integer to be raised to a power.</param>
+        /// <param name="y">A positive integer that specifies the power to be raised to.</param>
+        /// <returns>A specified number raised to a specified power.</returns>
+        public static BigInteger Pow(BigInteger x, uint y)
+        {
+            var ret = BigInteger.One;
+            while (y > 0)
+            {
+                if ((y & 1) == 1)
+                    ret *= x;
+                x *= x;
+                y >>= 1;
+            }
+            return ret;
+        }
 
 		/// <summary>
 		/// Returns a real number raised to a specified power.
@@ -394,12 +432,50 @@ namespace MathExtension
 			y = Math.Abs(y);
 			while (y != 0)
 			{
-				int remainder = x % y;
+				var remainder = x % y;
 				x = y;
 				y = remainder;
 			}
 			return x;
 		}
+
+        /// <summary>
+        /// Gets the greatest common divisor of two numbers.
+        /// </summary>
+        /// <param name="x">The first number.</param>
+        /// <param name="y">The second number.</param>
+        /// <returns>The greatest common divisor of the two numbers.</returns>
+        public static long Gcd(long x, long y)
+        {
+            x = Math.Abs(x);
+            y = Math.Abs(y);
+            while (y != 0)
+            {
+                var remainder = x % y;
+                x = y;
+                y = remainder;
+            }
+            return x;
+        }
+
+        /// <summary>
+        /// Gets the greatest common divisor of two numbers.
+        /// </summary>
+        /// <param name="x">The first number.</param>
+        /// <param name="y">The second number.</param>
+        /// <returns>The greatest common divisor of the two numbers.</returns>
+        public static BigInteger Gcd(BigInteger x, BigInteger y)
+        {
+            x = BigInteger.Abs(x);
+            y = BigInteger.Abs(y);
+            while (y != 0)
+            {
+                var remainder = x % y;
+                x = y;
+                y = remainder;
+            }
+            return x;
+        }
 
 		/// <summary>
 		/// Gets the least common multiple of two numbers.
@@ -409,9 +485,33 @@ namespace MathExtension
 		/// <returns>The least common multiple of the two numbers.</returns>
 		public static int Lcm(int x, int y)
 		{
-			int gcd = Gcd(x, y);
+			var gcd = Gcd(x, y);
 			return x * y / gcd;
 		}
+
+        /// <summary>
+        /// Gets the least common multiple of two numbers.
+        /// </summary>
+        /// <param name="x">The first number.</param>
+        /// <param name="y">The second number.</param>
+        /// <returns>The least common multiple of the two numbers.</returns>
+        public static long Lcm(long x, long y)
+        {
+            var gcd = Gcd(x, y);
+            return x * y / gcd;
+        }
+
+        /// <summary>
+        /// Gets the least common multiple of two numbers.
+        /// </summary>
+        /// <param name="x">The first number.</param>
+        /// <param name="y">The second number.</param>
+        /// <returns>The least common multiple of the two numbers.</returns>
+        public static BigInteger Lcm(BigInteger x, BigInteger y)
+        {
+            var gcd = Gcd(x, y);
+            return x * y / gcd;
+        }
 
 		/// <summary>
 		/// Gets the roots of a polynomial expression given its coefficients.

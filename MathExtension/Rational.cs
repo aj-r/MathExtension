@@ -246,7 +246,7 @@ namespace MathExtension
         /// <returns>The larger of two Rationals.</returns>
         public static Rational Pow(Rational baseValue, int exponent)
         {
-            Rational result = 1;
+            var result = Rational.One;
             if (exponent < 0)
             {
                 exponent *= -1;
@@ -343,7 +343,7 @@ namespace MathExtension
                 {
                     value = 1.0 / fractionPart;
                     denominator *= value;
-                    fractionPart = value - (int)value;
+                    fractionPart = value - Math.Truncate(value);
                     n++;
                 }
 
@@ -390,6 +390,11 @@ namespace MathExtension
 			}
 		}
 
+        public Rational Negate()
+        {
+            return new Rational(-Numerator, Denominator);
+        }
+
 		#endregion
 
 		/// <summary>
@@ -401,7 +406,7 @@ namespace MathExtension
 			{
 				return new Rational(Math.Sign(numerator), 0);
 			}
-            int gcd = MathEx.Gcd(numerator, denominator);
+            var gcd = MathEx.Gcd(numerator, denominator);
             // The denominator in the simplified version should always be positive,
             // so if it is negative, multiply both numbers by -1.
 			if (denominator < 0)
@@ -447,7 +452,7 @@ namespace MathExtension
 			if (x < Zero)
 			{
 				s += "-";
-				x *= -1;
+				x = x.Negate();
 			}
 			else if (x.Numerator < 0)
 			{
@@ -603,6 +608,16 @@ namespace MathExtension
 			Rational result = new Rational(xNum % yNum, denominator);
 			return result.Simplify();
 		}
+
+        public static Rational operator ++(Rational x)
+        {
+            return x + Rational.One;
+        }
+
+        public static Rational operator --(Rational x)
+        {
+            return x - Rational.One;
+        }
 
 		#endregion
 

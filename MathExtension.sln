@@ -1,7 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathExtension", "MathExtension\MathExtension.csproj", "{D3B9A548-A90B-433E-894E-E0BB3AE86FAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathExtension.Test", "MathExtension.Test\MathExtension.Test.csproj", "{3654EA84-25BB-4009-953E-2DE271C37934}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +17,10 @@ Global
 		{D3B9A548-A90B-433E-894E-E0BB3AE86FAB}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{D3B9A548-A90B-433E-894E-E0BB3AE86FAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3B9A548-A90B-433E-894E-E0BB3AE86FAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3654EA84-25BB-4009-953E-2DE271C37934}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3654EA84-25BB-4009-953E-2DE271C37934}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3654EA84-25BB-4009-953E-2DE271C37934}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3654EA84-25BB-4009-953E-2DE271C37934}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
