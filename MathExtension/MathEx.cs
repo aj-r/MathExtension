@@ -6,6 +6,7 @@ namespace MathExtension
 {
 	public static class MathEx
 	{
+        public const double ONE_THIRD = 1.0 / 3.0; 
 		public const double SQRT_2 = 1.4142135623730950488016887242097;
 		public const double SQRT_3 = 1.7320508075688772935274463415059;
 		public const double SQRT_1_2 = 0.70710678118654752440084436210485;
@@ -332,6 +333,33 @@ namespace MathExtension
 		{
 			return Math.Pow(x, y);
 		}
+        
+        public static BigInteger Sqrt(BigInteger n)
+        {
+            if (n == 0)
+                return 0;
+            if (n < 0)
+                throw new ArithmeticException("NaN");
+
+            int bitLength = Convert.ToInt32(Math.Ceiling(BigInteger.Log(n, 2)));
+            BigInteger root = BigInteger.One << (bitLength / 2);
+
+            while (!IsSqrt(n, root))
+            {
+                root += n / root;
+                root >>= 1; // Divide by 2
+            }
+
+            return root;
+        }
+
+        private static bool IsSqrt(BigInteger n, BigInteger root)
+        {
+            BigInteger lowerBound = root * root;
+            BigInteger upperBound = (root + 1) * (root + 1);
+
+            return (n >= lowerBound && n < upperBound);
+        }
 
 		/// <summary>
 		/// Returns the primary cube root of a specified number.
@@ -341,13 +369,9 @@ namespace MathExtension
 		public static double Cbrt(double x)
 		{
 			if (x >= 0)
-			{
-				return Math.Pow(x, 1.0 / 3.0);
-			}
+				return Math.Pow(x, ONE_THIRD);
 			else
-			{
-				return -Math.Pow(-x, 1.0 / 3.0);
-			}
+                return -Math.Pow(-x, ONE_THIRD);
 		}
 
 		/// <summary>

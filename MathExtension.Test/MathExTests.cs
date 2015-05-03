@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Numerics;
 using NUnit.Framework;
 
 namespace MathExtension.Test
@@ -30,6 +27,26 @@ namespace MathExtension.Test
         public long PowerTest(long x, int y)
         {
             return MathEx.Pow(x, (uint)y);
+        }
+
+        static TestCaseData[] sqrtTestCases =
+        {
+            new TestCaseData((BigInteger)0).Returns((BigInteger)0),
+            new TestCaseData((BigInteger)1).Returns((BigInteger)1),
+            new TestCaseData((BigInteger)2).Returns((BigInteger)1),
+            new TestCaseData((BigInteger)3).Returns((BigInteger)1),
+            new TestCaseData((BigInteger)4).Returns((BigInteger)2),
+            new TestCaseData((BigInteger)9).Returns((BigInteger)3),
+            new TestCaseData((BigInteger)2209).Returns((BigInteger)47),
+            new TestCaseData((BigInteger)2209).Returns((BigInteger)47),
+            new TestCaseData(BigInteger.Parse("23974000248716731684")).Returns((BigInteger)4896325178),
+            new TestCaseData((BigInteger)(-1)).Throws(typeof(ArithmeticException)),
+        };
+
+        [TestCaseSource("sqrtTestCases")]
+        public BigInteger SqrtTest(BigInteger x)
+        {
+            return MathEx.Sqrt(x);
         }
     }
 }
