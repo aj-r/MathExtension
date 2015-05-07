@@ -6,56 +6,107 @@ namespace MathExtension.Test
     [TestFixture]
     public class RationalTests
     {
-        [Test]
-        public void EqualTest()
+        static TestCaseData[] equalsTestCases =
         {
-            Assert.IsTrue(new Rational(1, 3) == new Rational(1, 3));
-            Assert.IsTrue(new Rational(1, 3) == new Rational(2, 6));
+            new TestCaseData(new Rational(1, 3), new Rational(1, 3)).Returns(true),
+            new TestCaseData(new Rational(1, 3), new Rational(2, 6)).Returns(true),
+            new TestCaseData(new Rational(1, 3), new Rational(-1, 3)).Returns(false),
+            new TestCaseData(new Rational(-1, 3), new Rational(2, -6)).Returns(true),
+            new TestCaseData(new Rational(-1, 3), new Rational(0, 0)).Returns(false),
+            new TestCaseData(new Rational(0, 0), new Rational(0, 0)).Returns(true),
+            new TestCaseData(new Rational(5, 0), new Rational(1, 0)).Returns(true),
+            new TestCaseData(new Rational(5, 11), new Rational(1, 0)).Returns(false),
+            new TestCaseData(new Rational(-5, 0), new Rational(1, 0)).Returns(false),
+            new TestCaseData(new Rational(0, 4), new Rational(0, -9)).Returns(true),
+        };
+
+        [TestCaseSource("equalsTestCases")]
+        public bool EqualsTest(Rational a, Rational b)
+        {
+            return a.Equals(b);
+        }
+
+        static TestCaseData[] strictlyEqualsTestCases =
+        {
+            new TestCaseData(new Rational(1, 3), new Rational(1, 3)).Returns(true),
+            new TestCaseData(new Rational(1, 3), new Rational(2, 6)).Returns(false),
+            new TestCaseData(new Rational(1, 3), new Rational(-1, 3)).Returns(false),
+            new TestCaseData(new Rational(-1, 3), new Rational(2, -6)).Returns(false),
+            new TestCaseData(new Rational(-1, 3), new Rational(0, 0)).Returns(false),
+            new TestCaseData(new Rational(0, 0), new Rational(0, 0)).Returns(true),
+            new TestCaseData(new Rational(5, 0), new Rational(1, 0)).Returns(false),
+            new TestCaseData(new Rational(5, 11), new Rational(1, 0)).Returns(false),
+            new TestCaseData(new Rational(-5, 0), new Rational(1, 0)).Returns(false),
+            new TestCaseData(new Rational(0, 4), new Rational(0, -9)).Returns(false),
+        };
+
+        [TestCaseSource("strictlyEqualsTestCases")]
+        public bool StrictlyEqualsTest(Rational a, Rational b)
+        {
+            return a.StrictlyEquals(b);
         }
 
         [Test]
-        public void AddTest()
+        public void GetHashCodeTest()
         {
-            var r = new Rational(2, 5) + new Rational(4, 5);
-            Assert.AreEqual(new Rational(6, 5), r);
-
-            r = new Rational(2, 5) + new Rational(0, 6);
-            Assert.AreEqual(new Rational(2, 5), r);
+            // Equivalent forms of the same Rational should have the same hash code.
+            var h1 = new Rational(3, 7).GetHashCode();
+            var h2 = new Rational(9, 21).GetHashCode();
+            Assert.That(h1, Is.EqualTo(h2));
         }
 
-        [Test]
-        public void AddTestIndeterminate()
+        static TestCaseData[] compareToTestCases =
         {
-            var r = new Rational(1, 6) + new Rational(0, 0);
-            Assert.AreEqual(new Rational(0, 0), r);
+            new TestCaseData(new Rational(1, 3), new Rational(1, 3)).Returns(0),
+            new TestCaseData(new Rational(1, 3), new Rational(2, 6)).Returns(0),
+            new TestCaseData(new Rational(1, 3), new Rational(-1, 3)).Returns(1),
+            new TestCaseData(new Rational(-1, 3), new Rational(2, -6)).Returns(0),
+            new TestCaseData(new Rational(-1, 3), new Rational(0, 0)).Returns(1),
+            new TestCaseData(new Rational(0, 0), new Rational(0, 0)).Returns(0),
+            new TestCaseData(new Rational(5, 0), new Rational(1, 0)).Returns(0),
+            new TestCaseData(new Rational(5, 11), new Rational(1, 0)).Returns(-1),
+            new TestCaseData(new Rational(-1, 0), new Rational(5, 11)).Returns(-1),
+            new TestCaseData(new Rational(-5, 0), new Rational(1, 0)).Returns(-1),
+            new TestCaseData(new Rational(0, 4), new Rational(0, -9)).Returns(0),
+        };
+
+        [TestCaseSource("compareToTestCases")]
+        public int CompareToTest(Rational a, Rational b)
+        {
+            return a.CompareTo(b);
         }
 
-        [Test]
-        public void AddTestDifferentBase()
+        static TestCaseData[] addTestCases =
         {
-            var r = new Rational(2, 5) + new Rational(4, 7);
-            Assert.AreEqual(new Rational(34, 35), r);
+            new TestCaseData(new Rational(2, 5), new Rational(4, 5)).Returns(new Rational(6, 5)),
+            new TestCaseData(new Rational(2, 5), new Rational(0, 6)).Returns(new Rational(2, 5)),
+            new TestCaseData(new Rational(2, 5), new Rational(4, 7)).Returns(new Rational(34, 35)),
+            new TestCaseData(new Rational(1, 4), new Rational(3, 10)).Returns(new Rational(11, 20)),
+            new TestCaseData(new Rational(1, 6), new Rational(0, 0)).Returns(new Rational(0, 0)),
+            new TestCaseData(new Rational(1, 6), new Rational(1, 0)).Returns(new Rational(1, 0)),
+            new TestCaseData(new Rational(1, 6), new Rational(-2, 0)).Returns(new Rational(-1, 0)),
+            new TestCaseData(new Rational(0, 0), new Rational(1, 0)).Returns(new Rational(0, 0)),
+            new TestCaseData(new Rational(-2, 0), new Rational(1, 0)).Returns(new Rational(0, 0)),
+        };
 
-            r = new Rational(1, 4) + new Rational(3, 10);
-            Assert.AreEqual(new Rational(11, 20), r);
+        [TestCaseSource("addTestCases")]
+        public Rational AddTest(Rational a, Rational b)
+        {
+            return a + b;
         }
 
-        [Test]
-        public void SubtractTest()
+        static TestCaseData[] subtractTestCases =
         {
-            var r = new Rational(2, 5) - new Rational(4, 5);
-            Assert.AreEqual(new Rational(-2, 5), r);
-        }
-
-        [Test]
-        public void SubtractTestDifferentBase()
-        {
-            var r = new Rational(2, 5) - new Rational(4, 7);
-            Assert.AreEqual(new Rational(-6, 35), r);
-
-            r = new Rational(1, 4) - new Rational(3, 10);
-            Assert.AreEqual(new Rational(-1, 20), r);
-        }
+            new TestCaseData(new Rational(2, 5), new Rational(4, 5)).Returns(new Rational(-2, 5)),
+            new TestCaseData(new Rational(2, 5), new Rational(0, 6)).Returns(new Rational(2, 5)),
+            new TestCaseData(new Rational(2, 5), new Rational(4, 7)).Returns(new Rational(-6, 35)),
+            new TestCaseData(new Rational(1, 4), new Rational(3, 10)).Returns(new Rational(-1, 20)),
+            new TestCaseData(new Rational(1, 6), new Rational(0, 0)).Returns(new Rational(0, 0)),
+            new TestCaseData(new Rational(1, 6), new Rational(1, 0)).Returns(new Rational(-1, 0)),
+            new TestCaseData(new Rational(1, 6), new Rational(-2, 0)).Returns(new Rational(1, 0)),
+            new TestCaseData(new Rational(0, 0), new Rational(1, 0)).Returns(new Rational(0, 0)),
+            new TestCaseData(new Rational(-2, 0), new Rational(1, 0)).Returns(new Rational(0, 0)),
+        };
 
         [Test]
         public void MultiplyTest()
@@ -71,7 +122,7 @@ namespace MathExtension.Test
         }
 
         [Test]
-        public void MultiplyTestIndeterminate()
+        public void MultiplyTest_Indeterminate()
         {
             var r = new Rational(1, 6) * new Rational(0, 0);
             Assert.AreEqual(new Rational(0, 0), r);
@@ -88,307 +139,109 @@ namespace MathExtension.Test
         }
 
         [Test]
-        public void DivideTestIndeterminate()
+        public void DivideTest_Indeterminate()
         {
             var r = new Rational(1, 6) / new Rational(0, 0);
             Assert.AreEqual(new Rational(0, 0), r);
         }
 
-        [Test]
-        public void ModuloTestA()
+        static TestCaseData[] moduloTestCases =
         {
-            var r = new Rational(3, 10) % new Rational(1, 5);
-            Assert.AreEqual(new Rational(1, 10), r);
+            new TestCaseData(new Rational(3, 10), new Rational(1, 5)).Returns(new Rational(1, 10)),
+            new TestCaseData(new Rational(1, 7), new Rational(1, 4)).Returns(new Rational(1, 7)),
+            new TestCaseData(new Rational(4, 7), new Rational(1, 3)).Returns(new Rational(5, 21)),
+            new TestCaseData(new Rational(3, 10), new Rational(1, 0)).Returns(new Rational(3, 10)),
+            new TestCaseData(new Rational(3, 10), new Rational(0, 1)).Returns(new Rational(0, 1)),
+            new TestCaseData(new Rational(1, 6), new Rational(0, 0)).Returns(new Rational(0, 0)),
+            new TestCaseData(new Rational(-5, 6), new Rational(1, 3)).Returns(new Rational(-1, 6)),
+        };
+
+        [TestCaseSource("moduloTestCases")]
+        public Rational ModuloTest(Rational a, Rational b)
+        {
+            return a % b;
         }
 
-        [Test]
-        public void ModuloTestB()
+        static TestCaseData[] divRemTestCases =
         {
-            var r = new Rational(1, 7) % new Rational(1, 4);
-            Assert.AreEqual(new Rational(1, 7), r);
+            new TestCaseData(new Rational(1, 2), new Rational(1, 5), 2, new Rational(1, 10)),
+            new TestCaseData(new Rational(1, 2), new Rational(1, 6), 3, new Rational(0, 1)),
+            new TestCaseData(new Rational(1, 7), new Rational(1, 4), 0, new Rational(1, 7)),
+            new TestCaseData(new Rational(1, 2), new Rational(1, 0), 0, new Rational(1, 2)),
+            new TestCaseData(new Rational(1, 0), new Rational(1, 5), 0, new Rational()).Throws(typeof(DivideByZeroException)),
+            new TestCaseData(new Rational(1, 2), new Rational(0, 5), 0, new Rational()).Throws(typeof(DivideByZeroException)),
+            new TestCaseData(new Rational(0, 2), new Rational(1, 5), 0, new Rational(0, 1)),
+            new TestCaseData(new Rational(1, 2), new Rational(0, 0), 0, new Rational()).Throws(typeof(DivideByZeroException)),
+            new TestCaseData(new Rational(-3, 2), new Rational(2, 3), -2, new Rational(-1, 6)),
+        };
+
+        [TestCaseSource("divRemTestCases")]
+        public void DivRemTest(Rational a, Rational b, int expectedDividend, Rational expectedRemainder)
+        {
+            Rational actualRemainder;
+            var actualDividend = Rational.DivRem(a, b, out actualRemainder);
+            Assert.That(actualDividend, Is.EqualTo(expectedDividend));
+            Assert.That(actualRemainder, Is.EqualTo(expectedRemainder));
         }
 
-        [Test]
-        public void ModuloTestC()
+        static TestCaseData[] powerTestCases =
         {
-            var r = new Rational(4, 7) % new Rational(1, 3);
-            Assert.AreEqual(new Rational(5, 21), r);
+            new TestCaseData(new Rational(3, 8), 0).Returns(new Rational(1, 1)),
+            new TestCaseData(new Rational(3, 8), 1).Returns(new Rational(3, 8)),
+            new TestCaseData(new Rational(3, 8), 3).Returns(new Rational(27, 512)),
+            new TestCaseData(new Rational(2, 3), 10).Returns(new Rational(1024, 59049)),
+            new TestCaseData(new Rational(3, 8), 0).Returns(new Rational(1, 1)),
+            new TestCaseData(new Rational(4, 7), -1).Returns(new Rational(7, 4)),
+            new TestCaseData(new Rational(4, 7), -2).Returns(new Rational(49, 16)),
+            new TestCaseData(new Rational(-4, 7), 2).Returns(new Rational(16, 49)),
+            new TestCaseData(new Rational(-4, 7), 3).Returns(new Rational(-64, 343)),
+            new TestCaseData(new Rational(-4, 7), -3).Returns(new Rational(-343, 64)),
+        };
+
+        [TestCaseSource("powerTestCases")]
+        public Rational PowerTest(Rational baseValue, int exponent)
+        {
+            return Rational.Pow(baseValue, exponent);
         }
 
-        [Test]
-        public void ModuloTestInfinity()
+        static TestCaseData[] simplifyTestCases =
         {
-            var r = new Rational(3, 10) % new Rational(1, 0);
-            Assert.AreEqual(new Rational(3, 10), r);
+            new TestCaseData(new Rational(4, 7), 4, 7),
+            new TestCaseData(new Rational(64, 4), 16, 1),
+            new TestCaseData(new Rational(45, 18), 5, 2),
+            new TestCaseData(new Rational(-10, -5), 2, 1),
+            new TestCaseData(new Rational(10, -5), -2, 1),
+            new TestCaseData(new Rational(0, 0), 0, 0),
+            new TestCaseData(new Rational(7, 0), 1, 0),
+            new TestCaseData(new Rational(-7, 0), -1, 0),
+            new TestCaseData(new Rational(0, -7), 0, 1),
+        };
+
+        [TestCaseSource("simplifyTestCases")]
+        public void SimplifyTest(Rational r, int expectedNumerator, int expectedDenominator)
+        {
+            var actual = r.Simplify();
+            Assert.AreEqual(expectedNumerator, actual.Numerator);
+            Assert.AreEqual(expectedDenominator, actual.Denominator);
         }
 
-        [Test]
-        public void ModuloTestZero()
+        static TestCaseData[] fromDoubleTestCases =
         {
-            var r = new Rational(3, 10) % new Rational(0, 1);
-            Assert.AreEqual(new Rational(0, 1), r);
-        }
+            new TestCaseData(1.0 / 3.0).Returns(new Rational(1, 3)),
+            new TestCaseData(2.0).Returns(new Rational(2, 1)),
+            new TestCaseData(1.0 / 7.0).Returns(new Rational(1, 7)),
+            new TestCaseData(3.0 / 14.0).Returns(new Rational(3, 14)),
+            new TestCaseData(47.0 / 49.0).Returns(new Rational(47, 49)),
+            new TestCaseData(-1.0 / 5.0).Returns(new Rational(-1, 5)),
+            new TestCaseData(double.PositiveInfinity).Returns(new Rational(1, 0)),
+            new TestCaseData(double.NegativeInfinity).Returns(new Rational(-1, 0)),
+            new TestCaseData(double.NaN).Returns(new Rational(0, 0)),
+        };
 
-        [Test]
-        public void ModuloTestIndeterminate()
+        [TestCaseSource("fromDoubleTestCases")]
+        public Rational FromDoubleTest(double value)
         {
-            var r = new Rational(1, 6) % new Rational(0, 0);
-            Assert.AreEqual(new Rational(0, 0), r);
+            return Rational.FromDouble(value);
         }
-
-        [Test]
-        public void ModuloTestNegative()
-        {
-            var r = new Rational(-5, 6) % new Rational(1, 3);
-            Assert.AreEqual(new Rational(-1, 6), r);
-        }
-
-        [Test]
-        public void DivRemTestA()
-        {
-            Rational r;
-            var result = Rational.DivRem(new Rational(1, 2), new Rational(1, 5), out r);
-            Assert.AreEqual(2, result);
-            Assert.AreEqual(new Rational(1, 10), r);
-        }
-
-        [Test]
-        public void DivRemTestB()
-        {
-            Rational r;
-            var result = Rational.DivRem(new Rational(1, 7), new Rational(1, 4), out r);
-            Assert.AreEqual(0, result);
-            Assert.AreEqual(new Rational(1, 7), r);
-        }
-
-        [Test]
-        public void DivRemTestInfinityDivisor()
-        {
-            Rational r;
-            var result = Rational.DivRem(new Rational(1, 2), new Rational(1, 0), out r);
-            Assert.AreEqual(0, result);
-            Assert.AreEqual(new Rational(1, 2), r);
-        }
-        
-        [Test]
-        [ExpectedException(typeof(DivideByZeroException))]
-        public void DivRemTestInfinityDividend()
-        {
-            Rational r;
-            var result = Rational.DivRem(new Rational(1, 0), new Rational(1, 5), out r);
-        }
-
-        [Test]
-        [ExpectedException(typeof(DivideByZeroException))]
-        public void DivRemTestZeroDivisor()
-        {
-            Rational r;
-            var result = Rational.DivRem(new Rational(1, 2), new Rational(0, 5), out r);
-        }
-
-        [Test]
-        public void DivRemTestZeroDividend()
-        {
-            Rational r;
-            var result = Rational.DivRem(new Rational(0, 2), new Rational(1, 5), out r);
-            Assert.AreEqual(0, result);
-            Assert.AreEqual(new Rational(0, 1), r);
-        }
-
-        [Test]
-        [ExpectedException(typeof(DivideByZeroException))]
-        public void DivRemTestIndeterminate()
-        {
-            Rational r;
-            var result = Rational.DivRem(new Rational(1, 2), new Rational(0, 0), out r);
-        }
-
-        [Test]
-        public void DivRemTestNegative()
-        {
-            Rational r;
-            var result = Rational.DivRem(new Rational(-3, 2), new Rational(2, 3), out r);
-            Assert.AreEqual(-2, result);
-            Assert.AreEqual(new Rational(-1, 6), r);
-        }
-
-        [Test]
-        public void PowerTestZero()
-        {
-            var r = Rational.Pow(new Rational(3, 8), 0);
-            Assert.AreEqual(new Rational(1, 1), r);
-        }
-
-        [Test]
-        public void PowerTestOne()
-        {
-            var r = Rational.Pow(new Rational(3, 8), 1);
-            Assert.AreEqual(new Rational(3, 8), r);
-        }
-
-        [Test]
-        public void PowerTestInteger()
-        {
-            var r = Rational.Pow(new Rational(3, 8), 3);
-            Assert.AreEqual(new Rational(27, 512), r);
-        }
-
-        [Test]
-        public void PowerTestLarge()
-        {
-            var r = Rational.Pow(new Rational(2, 3), 10);
-            Assert.AreEqual(new Rational(1024, 59049), r);
-        }
-
-        [Test]
-        public void PowerTestNegativeOne()
-        {
-            var r = Rational.Pow(new Rational(4, 7), -1);
-            Assert.AreEqual(new Rational(7, 4), r);
-        }
-
-        [Test]
-        public void PowerTestNegative()
-        {
-            var r = Rational.Pow(new Rational(4, 7), -2);
-            Assert.AreEqual(new Rational(49, 16), r);
-        }
-
-        [Test]
-        public void SimplifyTestTrivial()
-        {
-            var r = Rational.Simplify(4, 7);
-            Assert.AreEqual(4, r.Numerator);
-            Assert.AreEqual(7, r.Denominator);
-        }
-
-        [Test]
-        public void SimplifyTestMultiples()
-        {
-            var r = Rational.Simplify(64, 4);
-            Assert.AreEqual(16, r.Numerator);
-            Assert.AreEqual(1, r.Denominator);
-        }
-
-        [Test]
-        public void SimplifyTestNonTrivial()
-        {
-            var r = Rational.Simplify(45, 18);
-            Assert.AreEqual(5, r.Numerator);
-            Assert.AreEqual(2, r.Denominator);
-        }
-
-        [Test]
-        public void SimplifyTestBothNegative()
-        {
-            var r = Rational.Simplify(-10, -5);
-            Assert.AreEqual(2, r.Numerator);
-            Assert.AreEqual(1, r.Denominator);
-        }
-
-        [Test]
-        public void SimplifyTestDenominatorNegative()
-        {
-            var r = Rational.Simplify(10, -5);
-            Assert.AreEqual(-2, r.Numerator);
-            Assert.AreEqual(1, r.Denominator);
-        }
-
-        [Test]
-        public void SimplifyTestIndeterminate()
-        {
-            var r = Rational.Simplify(0, 0);
-            Assert.AreEqual(0, r.Numerator);
-            Assert.AreEqual(0, r.Denominator);
-        }
-
-        [Test]
-        public void SimplifyTestPositiveInfinity()
-        {
-            var r = Rational.Simplify(7, 0);
-            Assert.AreEqual(1, r.Numerator);
-            Assert.AreEqual(0, r.Denominator);
-        }
-
-        [Test]
-        public void SimplifyTestNegativeInfinity()
-        {
-            var r = Rational.Simplify(-7, 0);
-            Assert.AreEqual(-1, r.Numerator);
-            Assert.AreEqual(0, r.Denominator);
-        }
-
-        [Test]
-        public void FromDoubleTestA()
-        {
-            var r = Rational.FromDouble(1.0 / 3.0);
-            Assert.AreEqual(1, r.Numerator);
-            Assert.AreEqual(3, r.Denominator);
-        }
-
-        [Test]
-        public void FromDoubleTestB()
-        {
-            var r = Rational.FromDouble(2.0);
-            Assert.AreEqual(2, r.Numerator);
-            Assert.AreEqual(1, r.Denominator);
-        }
-
-        [Test]
-        public void FromDoubleTestC()
-        {
-            var r = Rational.FromDouble(1.0 / 7.0);
-            Assert.AreEqual(1, r.Numerator);
-            Assert.AreEqual(7, r.Denominator);
-        }
-
-        [Test]
-        public void FromDoubleTestD()
-        {
-            var r = Rational.FromDouble(3.0 / 14.0);
-            Assert.AreEqual(3, r.Numerator);
-            Assert.AreEqual(14, r.Denominator);
-        }
-
-        [Test]
-        public void FromDoubleTestE()
-        {
-            var r = Rational.FromDouble(47.0 / 49.0);
-            Assert.AreEqual(47, r.Numerator);
-            Assert.AreEqual(49, r.Denominator);
-        }
-
-        [Test]
-        public void FromDoubleTestNegative()
-        {
-            var r = Rational.FromDouble(-1.0 / 5.0);
-            Assert.AreEqual(-1, r.Numerator);
-            Assert.AreEqual(5, r.Denominator);
-        }
-
-        [Test]
-        public void FromDoubleTestPositiveInfinity()
-        {
-            var r = Rational.FromDouble(double.PositiveInfinity);
-            Assert.AreEqual(1, r.Numerator);
-            Assert.AreEqual(0, r.Denominator);
-        }
-
-        [Test]
-        public void FromDoubleTestNegativeInfinity()
-        {
-            var r = Rational.FromDouble(double.NegativeInfinity);
-            Assert.AreEqual(-1, r.Numerator);
-            Assert.AreEqual(0, r.Denominator);
-        }
-
-        [Test]
-        public void FromDoubleTestNaN()
-        {
-            var r = Rational.FromDouble(double.NaN);
-            Assert.AreEqual(0, r.Numerator);
-            Assert.AreEqual(0, r.Denominator);
-        }
-
     }
 }

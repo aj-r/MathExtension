@@ -485,9 +485,16 @@ namespace MathExtension
 			return (obj is Rational) && this == (Rational)obj;
 		}
 
+        public bool StrictlyEquals(Rational r)
+        {
+            return Numerator == r.Numerator && Denominator == r.Denominator;
+        }
+
 		public override int GetHashCode()
 		{
-            return FnvCombine(Numerator.GetHashCode(), Denominator.GetHashCode());
+            // Get the hash code of the simplified Rational. Equivalent Rationals (e.g. 1/2 and 2/4) should have the same hash code.
+            var simplified = Simplify();
+            return FnvCombine(simplified.Numerator.GetHashCode(), simplified.Denominator.GetHashCode());
 		}
 
         private static int FnvCombine(params int[] hashes)
@@ -548,14 +555,21 @@ namespace MathExtension
 
 		public static Rational operator +(Rational x, Rational y)
 		{
-			if (x.Denominator == 0)
-			{
-				return new Rational(Math.Sign(x.Numerator), 0);
-			}
-			if (y.Denominator == 0)
-			{
-				return new Rational(Math.Sign(y.Numerator), 0);
-			}
+            if (x.Denominator == 0)
+            {
+                if (x.Numerator == 0)
+                    return Indeterminate;
+                if (y.Denominator == 0)
+                    return new Rational(Math.Sign(Math.Sign(x.Numerator) + Math.Sign(y.Numerator)), 0);
+                return new Rational(Math.Sign(x.Numerator), 0);
+            }
+            if (y.Denominator == 0)
+            {
+                if (y.Numerator == 0)
+                    return Indeterminate;
+                return new Rational(Math.Sign(y.Numerator), 0);
+            }
+
 			int denominator = MathEx.Lcm(x.Denominator, y.Denominator);
 			int xFactor = denominator / x.Denominator;
 			int yFactor = denominator / y.Denominator;
@@ -566,13 +580,10 @@ namespace MathExtension
 		public static Rational operator -(Rational x, Rational y)
 		{
 			if (x.Denominator == 0)
-			{
 				return new Rational(Math.Sign(x.Numerator), 0);
-			}
 			if (y.Denominator == 0)
-			{
 				return new Rational(-Math.Sign(y.Numerator), 0);
-			}
+
 			int denominator = MathEx.Lcm(x.Denominator, y.Denominator);
 			int xFactor = denominator / x.Denominator;
 			int yFactor = denominator / y.Denominator;
@@ -582,31 +593,27 @@ namespace MathExtension
 
 		public static Rational operator *(Rational x, Rational y)
 		{
-			Rational result = new Rational(x.Numerator * y.Numerator, x.Denominator * y.Denominator);
-			return result.Simplify();
+            return Rational.Simplify(x.Numerator * y.Numerator, x.Denominator * y.Denominator);
 		}
 
 		public static Rational operator /(Rational x, Rational y)
 		{
-			Rational result = new Rational(x.Numerator * y.Denominator, x.Denominator * y.Numerator);
-			return result.Simplify();
+            return Rational.Simplify(x.Numerator * y.Denominator, x.Denominator * y.Numerator);
 		}
 
 		public static Rational operator %(Rational x, Rational y)
 		{
-			if (x.Denominator == 0 || y.Denominator == 0)
-			{
-				return Indeterminate;
-			}
+            if (y.Denominator == 0)
+                return x.Denominator == 0 || y.Numerator == 0 ? Indeterminate : x;
+			if (x.Denominator == 0)
+				return x.Simplify();
 			if (x.Numerator == 0 || y.Numerator == 0)
-			{
 				return Zero;
-			}
+
 			int xNum = x.Numerator * y.Denominator;
 			int yNum = y.Numerator * x.Denominator;
 			int denominator = x.Denominator * y.Denominator;
-			Rational result = new Rational(xNum % yNum, denominator);
-			return result.Simplify();
+            return Rational.Simplify(xNum % yNum, denominator);
 		}
 
         public static Rational operator ++(Rational x)
@@ -683,14 +690,12 @@ namespace MathExtension
 			if (Denominator == 0)
 			{
 				if (other.Denominator == 0)
-				{
 					return Math.Sign(Numerator).CompareTo(Math.Sign(other.Numerator));
-				}
-				return Math.Sign(Numerator);
+				return Numerator == 0 ? -1 : Math.Sign(Numerator);
 			}
 			if (other.Denominator == 0)
 			{
-				return -Math.Sign(other.Numerator);
+                return other.Numerator == 0 ? 1 : -Math.Sign(other.Numerator);
 			}
 			// Use BigMul to avoid losing data when multiplying large integers
 			long value1 = Math.BigMul(Numerator, other.Denominator);
