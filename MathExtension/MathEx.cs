@@ -6,100 +6,157 @@ namespace MathExtension
 {
 	public static class MathEx
 	{
-        public const double ONE_THIRD = 1.0 / 3.0; 
-		public const double SQRT_2 = 1.4142135623730950488016887242097;
-		public const double SQRT_3 = 1.7320508075688772935274463415059;
-		public const double SQRT_1_2 = 0.70710678118654752440084436210485;
+        /// <summary>
+        /// The floating-point representation of 1/3.
+        /// </summary>
+        public const double ONE_THIRD = 1.0 / 3.0;
 
+        /// <summary>
+        /// The floating-point representation of the square root of 2.
+        /// </summary>
+        public const double SQRT_2 = 1.4142135623730950488016887242097;
+
+        /// <summary>
+        /// The floating-point representation of the square root of 3.
+        /// </summary>
+        public const double SQRT_3 = 1.7320508075688772935274463415059;
+
+        /// <summary>
+        /// The floating-point representation of the square root of 1/2.
+        /// </summary>
+        public const double SQRT_1_2 = 0.70710678118654752440084436210485;
+
+        /// <summary>
+        /// The default tolerance that is used when comparing double-recision floating-point values for equality.
+        /// </summary>
+        public const double DEFAULT_TOLERANCE = 1e-6;
+
+        /// <summary>
+        /// The default tolerance that is used when comparing single-precision floating-point values for equality.
+        /// </summary>
+        public const float DEFAULT_FLOAT_TOLERANCE = 1e-6f;
+
+        /// <summary>
+        /// Returns the absolute value of a single-precision floating point number.
+        /// </summary>
+        /// <param name="x">A single-precision floating point number.</param>
+        /// <returns>The absolute value.</returns>
 		public static float Abs(float x)
 		{
 			return Math.Abs(x);
 		}
 
+        /// <summary>
+        /// Returns the absolute value of a double-precision floating point number.
+        /// </summary>
+        /// <param name="x">A double-precision floating point number.</param>
+        /// <returns>The absolute value.</returns>
 		public static double Abs(double x)
 		{
 			return Math.Abs(x);
 		}
 
+        /// <summary>
+        /// Gets the absolute value of a rational number.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
 		public static Rational Abs(Rational x)
 		{
 			return new Rational(Math.Abs(x.Numerator), Math.Abs(x.Denominator));
 		}
 
+        /// <summary>
+        /// Gets the sign of a rational number (-1, 0, or 1).
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
 		public static int Sign(Rational x)
 		{
 			return Math.Sign(x.Numerator) * Math.Sign(x.Denominator);
 		}
 
+        /// <summary>
+        /// Gets the maximum of 2 rationals.
+        /// </summary>
+        /// <param name="a">A <see cref="Rational"/>.</param>
+        /// <param name="b">A <see cref="Rational"/>.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
 		public static Rational Max(Rational a, Rational b)
 		{
 			return (a > b ? a : b);
 		}
 
+        /// <summary>
+        /// Gets the minimum of 2 rationals.
+        /// </summary>
+        /// <param name="a">A <see cref="Rational"/>.</param>
+        /// <param name="b">A <see cref="Rational"/>.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
 		public static Rational Min(Rational a, Rational b)
 		{
 			return (a < b ? a : b);
 		}
 
 		/// <summary>
-		/// Gets whether or not a floating-point number is zero, within a certain tolerance.
+        /// Gets whether or not a floating-point number is zero, within a certain tolerance to allow for floating point rounding errors.
 		/// </summary>
 		/// <param name="x">A floating-point number.</param>
 		/// <returns>True if the number is zero, false if not.</returns>
-        public static bool IsZero(float x, float tolerance = 1e-6f)
+        public static bool IsZero(float x, float tolerance = DEFAULT_FLOAT_TOLERANCE)
 		{
 			return Math.Abs(x) < tolerance;
 		}
 
 		/// <summary>
-		/// Gets whether or not a floating-point number is zero, within a certain tolerance.
+        /// Gets whether or not a floating-point number is zero, within a certain tolerance to allow for floating point rounding errors.
 		/// </summary>
 		/// <param name="x">A floating-point number.</param>
 		/// <returns>True if the number is zero, false if not.</returns>
-		public static bool IsZero(double x, double tolerance = 1e-6)
+        public static bool IsZero(double x, double tolerance = DEFAULT_TOLERANCE)
 		{
             return Math.Abs(x) < tolerance;
 		}
 
         /// <summary>
-        /// Gets whether or not a complex number is zero, within a certain tolerance.
+        /// Gets whether or not a complex number is zero, within a certain tolerance to allow for floating point rounding errors.
         /// </summary>
         /// <param name="x">A complex number.</param>
         /// <returns>True if the number is zero, false if not.</returns>
-        public static bool IsZero(Complex x, double tolerance = 1e-6)
+        public static bool IsZero(Complex x, double tolerance = DEFAULT_TOLERANCE)
         {
             return Math.Abs(x.Real) < tolerance && Math.Abs(x.Imaginary) < tolerance;
         }
 
 		/// <summary>
-		/// Gets whether or not two floating-point numbers are equal to each other, within a certain tolerance.
+        /// Gets whether or not two floating-point numbers are equal to each other, within a certain tolerance to allow for floating point rounding errors.
 		/// </summary>
 		/// <param name="x">The first floating-point number.</param>
 		/// <param name="x">The second floating-point number.</param>
 		/// <returns>True if the numbers are equal, false if not.</returns>
-        public static bool AreEqual(float x, float y, double tolerance = 1e-6)
+        public static bool AreEqual(float x, float y, float tolerance = DEFAULT_FLOAT_TOLERANCE)
 		{
             return Math.Abs(x - y) < tolerance;
 		}
 
 		/// <summary>
-		/// Gets whether or not two floating-point numbers are equal to each other, within a certain tolerance.
+        /// Gets whether or not two floating-point numbers are equal to each other, within a certain tolerance to allow for floating point rounding errors.
 		/// </summary>
 		/// <param name="x">The first floating-point number.</param>
 		/// <param name="x">The second floating-point number.</param>
 		/// <returns>True if the numbers are equal, false if not.</returns>
-        public static bool AreEqual(double x, double y, double tolerance = 1e-6)
+        public static bool AreEqual(double x, double y, double tolerance = DEFAULT_TOLERANCE)
 		{
             return Math.Abs(x - y) < tolerance;
 		}
 
         /// <summary>
-        /// Gets whether or not two complex numbers are equal to each other, within a certain tolerance.
+        /// Gets whether or not two complex numbers are equal to each other, within a certain tolerance to allow for floating point rounding errors.
         /// </summary>
         /// <param name="x">The first complex number.</param>
         /// <param name="x">The second complex number.</param>
         /// <returns>True if the number is zero, false if not.</returns>
-        public static bool AreEqual(Complex x, Complex y, double tolerance = 1e-6)
+        public static bool AreEqual(Complex x, Complex y, double tolerance = DEFAULT_TOLERANCE)
         {
             return Math.Abs(x.Real - y.Real) < tolerance && Math.Abs(x.Imaginary - y.Imaginary) < tolerance;
         }
@@ -109,7 +166,7 @@ namespace MathExtension
 		/// </summary>
 		/// <param name="x">The number to test.</param>
 		/// <returns>True if the number is an integer, false if it has a fraction part.</returns>
-        public static bool IsInteger(float x, float tolerance = 1e-6f)
+        public static bool IsInteger(float x, float tolerance = DEFAULT_FLOAT_TOLERANCE)
 		{
             var fpart = Math.Abs(x % 1.0);
             return fpart < tolerance || fpart > 1 - tolerance;
@@ -120,7 +177,7 @@ namespace MathExtension
 		/// </summary>
 		/// <param name="x">The number to test.</param>
 		/// <returns>True if the number is an integer, false if it has a fraction part.</returns>
-        public static bool IsInteger(double x, double tolerance = 1e-6)
+        public static bool IsInteger(double x, double tolerance = DEFAULT_TOLERANCE)
         {
             var fpart = Math.Abs(x % 1.0);
             return fpart < tolerance || fpart > 1 - tolerance;
@@ -131,70 +188,76 @@ namespace MathExtension
         /// </summary>
         /// <param name="x">The number to test.</param>
         /// <returns>True if the number is an integer, false if it has a fraction part.</returns>
-        public static bool IsInteger(Complex x, double tolerance = 1e-6)
+        public static bool IsInteger(Complex x, double tolerance = DEFAULT_TOLERANCE)
         {
             return IsZero(x.Imaginary, tolerance) && IsInteger(x.Real, tolerance);
         }
 
-		/// <summary>
-		/// Rounds a floating-point number to the nearest integer.
-		/// </summary>
-		/// <param name="x">A floating-point number.</param>
-		/// <returns>The rounded version of the number.</returns>
-		public static int Round(float x)
-		{
-			if (x >= 0.0f)
-				return (int)(x + 0.5f);
-			else
-				return (int)(x - 0.5f);
-		}
-
-		/// <summary>
-		/// Rounds a floating-point number to the nearest integer.
-		/// </summary>
-		/// <param name="x">A floating-point number.</param>
-		/// <returns>The rounded version of the number.</returns>
-        public static int Round(double x)
-		{
-			if (x >= 0.0)
-				return (int)(x + 0.5);
-			else
-				return (int)(x - 0.5);
-		}
-
+        /// <summary>
+        /// Returns e raised to the specified power.
+        /// </summary>
+        /// <param name="x">A single-precision floating point number.</param>
+        /// <returns>The number <value>e</value> raised to the power <paramref name="x"/>.</returns>
 		public static float Exp(float x)
 		{
 			return (float)Math.Exp(x);
 		}
 
-		private static readonly double log_2 = Math.Log(2.0);
-		private static readonly double log_10 = Math.Log(10.0);
-
+        /// <summary>
+        /// Returns the natural (base e) logarithm of the specified number.
+        /// </summary>
+        /// <param name="x">A single-precision floating point number.</param>
+        /// <returns>The result of the natural logarithm.</returns>
 		public static float Log(float x)
 		{
 			return (float)Math.Log(x);
 		}
 
+        /// <summary>
+        /// Returns the natural (base e) logarithm of the specified number.
+        /// </summary>
+        /// <param name="x">A double-precision floating point number.</param>
+        /// <returns>The result of the natural logarithm.</returns>
 		public static double Log(double x)
 		{
 			return Math.Log(x);
 		}
 
+        /// <summary>
+        /// Returns the natural (base e) logarithm of the specified number.
+        /// </summary>
+        /// <param name="x">A rational number.</param>
+        /// <returns>The result of the natural logarithm.</returns>
 		public static double Log(Rational x)
 		{
 			return Math.Log((double)x.Numerator / (double)x.Denominator);
 		}
 
+        /// <summary>
+        /// Returns the base-2 logarithm of the specified number.
+        /// </summary>
+        /// <param name="x">A single-precision floating point number.</param>
+        /// <returns>The result of the base-2 logarithm.</returns>
 		public static float Log2(float x)
 		{
 			return (float)Math.Log(x, 2.0);
 		}
-		
+
+        /// <summary>
+        /// Returns the base-2 logarithm of the specified number.
+        /// </summary>
+        /// <param name="x">A double-precision floating point number.</param>
+        /// <returns>The result of the base-2 logarithm.</returns>
 		public static double Log2(double x)
 		{
 			return Math.Log(x, 2);
 		}
 
+        /// <summary>
+        /// Returns the base-2 logarithm of the specified number.
+        /// </summary>
+        /// <param name="x">A rational number.</param>
+        /// <returns>The result of the base-2 logarithm.</returns>
 		public static double Log2(Rational x)
 		{
 			double input = (double)x.Numerator / (double)x.Denominator;
@@ -202,16 +265,31 @@ namespace MathExtension
 			return retVal;
 		}
 
+        /// <summary>
+        /// Returns the base-10 logarithm of the specified number.
+        /// </summary>
+        /// <param name="x">A single-precision floating point number.</param>
+        /// <returns>The result of the base-2 logarithm.</returns>
 		public static float Log10(float x)
 		{
 			return (float)Math.Log10(x);
 		}
 
+        /// <summary>
+        /// Returns the base-10 logarithm of the specified number.
+        /// </summary>
+        /// <param name="x">A double-precision floating point number.</param>
+        /// <returns>The result of the base-2 logarithm.</returns>
 		public static double Log10(double x)
 		{
 			return Math.Log10(x);
 		}
 
+        /// <summary>
+        /// Returns the base-10 logarithm of the specified number.
+        /// </summary>
+        /// <param name="x">A rational number.</param>
+        /// <returns>The result of the base-2 logarithm.</returns>
 		public static double Log10(Rational x)
 		{
 			return Math.Log10((double)x.Numerator / (double)x.Denominator);
@@ -334,6 +412,11 @@ namespace MathExtension
 			return Math.Pow(x, y);
 		}
         
+        /// <summary>
+        /// Returns the square root of a specified number.
+        /// </summary>
+        /// <param name="n">An arbitrarily large signed integer.</param>
+        /// <returns>The square root of <paramref name="n"/>.</returns>
         public static BigInteger Sqrt(BigInteger n)
         {
             if (n == 0)
@@ -530,12 +613,13 @@ namespace MathExtension
         }
 
 		/// <summary>
-		/// Gets the roots of a polynomial expression given its coefficients.
+		/// Gets the roots of a polynomial expression (up to 3rd order) given its coefficients.
 		/// </summary>
 		/// <param name="coefficients">
 		/// The coefficients in the polynomial, starting with the coefficient for the highest order term
 		/// and ending with the constant term. The number of coefficients should be one greater than the
-		/// order of the polynomial.</param>
+		/// order of the polynomial.
+        /// </param>
 		/// <returns>The root(s) of the polynomial.</returns>
 		public static Complex[] GetPolynomialRoots(params Complex[] coefficients)
 		{
@@ -607,36 +691,17 @@ namespace MathExtension
 			}
 			else if (order == 4)
 			{
+                // TODO: implement this
 				// 4th order: 0 = ax^4 + bx^3 + cx^2 + dx + f
-				// x1 = 
-				throw new NotImplementedException();
+                // x1 = 
+                throw new NotSupportedException("4th order polynomials are not supported.");
 			}
 			else if (order > 4)
 			{
-				// Order is too high to solve.
-				return null;
+                // Order is too high to solve.
+                throw new NotSupportedException(order + "-order polynomials are not supported.");
 			}
 			return roots;
-		}
-
-		public static Rectangle RectangleUnion(Rectangle a, Rectangle b)
-		{
-			Rectangle newRect = new Rectangle();
-			newRect.X = Math.Min(a.Left, b.Left);
-			newRect.Y = Math.Min(a.Top, b.Top);
-			newRect.Width = Math.Max(a.Right, b.Right) - newRect.X;
-			newRect.Height = Math.Max(a.Bottom, b.Bottom) - newRect.Y;
-			return newRect;
-		}
-
-		public static RectangleF RectangleUnion(RectangleF a, RectangleF b)
-		{
-			RectangleF newRect = new RectangleF();
-			newRect.X = Math.Min(a.Left, b.Left);
-			newRect.Y = Math.Min(a.Top, b.Top);
-			newRect.Width = Math.Max(a.Right, b.Right) - newRect.X;
-			newRect.Height = Math.Max(a.Bottom, b.Bottom) - newRect.Y;
-			return newRect;
 		}
 	}
 }

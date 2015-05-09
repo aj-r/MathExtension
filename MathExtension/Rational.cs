@@ -5,16 +5,18 @@ using System.Text;
 
 namespace MathExtension
 {
-	[Serializable]
-	public struct Rational : IComparable, IComparable<Rational>, IConvertible, IEquatable<Rational>, IFormattable
-	{
-		private readonly int _numerator;
+    [Serializable]
+    public struct Rational : IComparable, IComparable<Rational>, IConvertible, IEquatable<Rational>, IFormattable
+    {
+        #region Members
+
+        private readonly int _numerator;
         private readonly int _denominator;
 
         /// <summary>
         /// Represents the number zero.
         /// </summary>
-		public static readonly Rational Zero = new Rational(0, 1);
+        public static readonly Rational Zero = new Rational(0, 1);
 
         /// <summary>
         /// Represents the number one.
@@ -24,7 +26,7 @@ namespace MathExtension
         /// <summary>
         /// Represents the minimum finite value of a <see cref="Rational"/>.
         /// </summary>
-		public static readonly Rational MinValue = new Rational(int.MinValue, 1);
+        public static readonly Rational MinValue = new Rational(int.MinValue, 1);
 
         /// <summary>
         /// Represents the maximum finite value of a <see cref="Rational"/>.
@@ -32,26 +34,46 @@ namespace MathExtension
         public static readonly Rational MaxValue = new Rational(int.MaxValue, 1);
 
         /// <summary>
-        /// Represents the minimum positive value of a <see cref="Rational"/>.
-        /// </summary>
-        public static readonly Rational Epsilon = new Rational(1, int.MaxValue);
-
-        /// <summary>
         /// Represents an indeterminate value.
         /// </summary>
-		public static readonly Rational Indeterminate = new Rational(0, 0);
-        
+        public static readonly Rational Indeterminate = new Rational(0, 0);
+
         /// <summary>
         /// Represents positive infinity.
         /// </summary>
-		public static readonly Rational PositiveInfinity = new Rational(1, 0);
-        
+        public static readonly Rational PositiveInfinity = new Rational(1, 0);
+
         /// <summary>
         /// Represents negative infinity.
         /// </summary>
-		public static readonly Rational NegativeInfinity = new Rational(-1, 0);
+        public static readonly Rational NegativeInfinity = new Rational(-1, 0);
 
-		#region Static Methods
+        /// <summary>
+        /// Represents the minimum positive value of a <see cref="Rational"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This field has a value of 1 / 2,147,483,647.
+        /// </para>
+        /// <para>
+        /// This does NOT represent the minimum possible difference between two <see cref="Rational"/> instances; some rationals may have a smaller difference.
+        /// If you try to subrtact two rationals whose difference is smaller than this value, you will get unexpected results due to overflow.
+        /// </para>
+        /// <example>
+        /// To check for this case, you can add this value to one of the rationals and compare to the other rational.
+        /// <code>
+        ///   if (r1 + Rational.Epsilon &gt; r2 && r1 - Rational.Epsilon &lt; r2)
+        ///   {
+        ///     // Difference between r1 and r2 is less than Rational.Epsilon.
+        ///   }
+        /// </code>
+        /// </example>
+        /// </remarks>
+        public static readonly Rational Epsilon = new Rational(1, int.MaxValue);
+
+        #endregion
+
+        #region Static Methods
 
         /// <summary>
         /// Converts the string representation of a number to its <see cref="Rational"/> representation.
@@ -214,71 +236,120 @@ namespace MathExtension
             return int.TryParse(s, style, provider, out result);
         }
 
+        private const double fromDoubleTolerance = 1e-8;
 
-		/// <summary>
-		/// Converts a floating-point number to a rational number.
-		/// </summary>
-		/// <param name="value">A floating-point number to convert to a rational number.</param>
-		/// <returns>A rational number.</returns>
-		public static Rational FromDouble(double value)
-		{
-			return new Rational(value);
-		}
+        /// <summary>
+        /// Converts a floating-point number to a rational number.
+        /// </summary>
+        /// <param name="value">A floating-point number to convert to a rational number.</param>
+        /// <returns>A rational number.</returns>
+        public static Rational FromDouble(double value)
+        {
+            if (double.IsPositiveInfinity(value))
+                return PositiveInfinity;
+            if (double.IsNegativeInfinity(value))
+                return NegativeInfinity;
+            if (double.IsNaN(value))
+                return Indeterminate;
 
-		/// <summary>
-		/// Converts a floating-point decimal to a rational number.
-		/// </summary>
-		/// <param name="value">A floating-point number to convert to a rational number.</param>
-		/// <param name="denominatorBase">A base that the denominator must be a power of.</param>
-		/// <returns>A rational number.</returns>
-		public static Rational FromDouble(double value, int denominatorBase)
-		{
-			if (denominatorBase <= 1)
-			{
-				throw new ArgumentException("Denominator base must be greater than 1.", "denominatorBase");
-			}
+            // TODO: this algorithm has really bad rounding errors. Use a better algorithm
+            // if this function will used often.
 
-			int denominator = 1;
-			while (!MathEx.IsInteger(value))
-			{
-				value *= (double)denominatorBase;
-				denominator *= denominatorBase;
-			}
+            bool isNegative = false;
+            if (value < 0)
+            {
+                value *= -1;
+                isNegative = true;
+            }
+            // Set numerator to 'value' for now; we will set it to the actual numerator once we know
+            // what the denominator is.
+            double numerator = value;
 
-			return new Rational(MathEx.Round(value), denominator);
-		}
+            // Get the denominator
+            double denominator = 1.0;
+            double fractionPart = value - Math.Truncate(value);
+            int n = 0;
+            while (!MathEx.IsInteger(fractionPart, fromDoubleTolerance) && n < 100)
+            {
+                value = 1.0 / fractionPart;
+                denominator *= value;
+                fractionPart = value - Math.Truncate(value);
+                n++;
+            }
 
-		/// <summary>
-		/// Converts a floating-point decimal to a rational number.
-		/// </summary>
-		/// <param name="value">A floating-point number to convert to a rational number.</param>
-		/// <param name="maxDenominator">The maximum value that the denominator can have.</param>
-		/// <returns>A rational number.</returns>
-		public static Rational FromDoubleWithMaxDenominator(double value, int maxDenominator)
-		{
-			if (maxDenominator < 1)
-			{
-				throw new ArgumentException("Maximum denominator base must be greater than or equal to 1.", "maxDenominator");
-			}
+            // Get the actual numerator
+            numerator *= denominator;
+            if (isNegative)
+                numerator *= -1;
+            return new Rational(Convert.ToInt32(numerator), Convert.ToInt32(denominator));
+        }
 
-			int denominator = 0;
-			int bestDenominator = 1;
-			double bestDifference = 1.0;
-			double numerator;
-			do
-			{
-				denominator++;
-				numerator = value * (double)denominator;
-				double difference = numerator % 1.0;
-				if (difference < bestDifference)
-				{
-					bestDifference = difference;
-					bestDenominator = denominator;
-				}
-			} while (!MathEx.IsInteger(numerator) && denominator < maxDenominator);
+        /// <summary>
+        /// Converts a floating-point decimal to a rational number.
+        /// </summary>
+        /// <param name="value">A floating-point number to convert to a rational number.</param>
+        /// <param name="denominatorBase">A base that the denominator must be a power of.</param>
+        /// <returns>A rational number.</returns>
+        public static Rational FromDouble(double value, int denominatorBase)
+        {
+            if (double.IsPositiveInfinity(value))
+                return PositiveInfinity;
+            if (double.IsNegativeInfinity(value))
+                return NegativeInfinity;
+            if (double.IsNaN(value))
+                return Indeterminate;
 
-			return new Rational(MathEx.Round(numerator), denominator);
-		}
+            if (denominatorBase <= 1)
+                throw new ArgumentException("Denominator base must be greater than 1.", "denominatorBase");
+
+            int denominator = 1;
+            while (!MathEx.IsInteger(value, fromDoubleTolerance))
+            {
+                value *= (double)denominatorBase;
+                denominator *= denominatorBase;
+            }
+
+            return new Rational(Convert.ToInt32(value), denominator);
+        }
+
+        /// <summary>
+        /// Converts a floating-point decimal to a rational number.
+        /// </summary>
+        /// <param name="value">A floating-point number to convert to a rational number.</param>
+        /// <param name="maxDenominator">The maximum value that the denominator can have.</param>
+        /// <returns>A rational number.</returns>
+        public static Rational FromDoubleWithMaxDenominator(double value, int maxDenominator)
+        {
+            if (double.IsPositiveInfinity(value))
+                return PositiveInfinity;
+            if (double.IsNegativeInfinity(value))
+                return NegativeInfinity;
+            if (double.IsNaN(value))
+                return Indeterminate;
+
+            if (maxDenominator < 1)
+            {
+                throw new ArgumentException("Maximum denominator base must be greater than or equal to 1.", "maxDenominator");
+            }
+
+            int denominator = 0;
+            int bestDenominator = 1;
+            double bestDifference = 1.0;
+            double numerator;
+            do
+            {
+                denominator++;
+                numerator = value * (double)denominator;
+                double difference = numerator % 1.0;
+                if (difference < bestDifference)
+                {
+                    bestDifference = difference;
+                    bestDenominator = denominator;
+                }
+            } while (!MathEx.IsInteger(numerator, fromDoubleTolerance) && denominator < maxDenominator);
+
+            return new Rational(Convert.ToInt32(numerator), denominator);
+        }
 
         /// <summary>
         /// Returns the absolute value of a Rational.
@@ -411,133 +482,83 @@ namespace MathExtension
             return r._numerator == 0 && r._denominator != 0;
         }
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		public Rational(int numerator)
-			: this(numerator, 1)
-		{ }
+        public Rational(int numerator)
+            : this(numerator, 1)
+        { }
 
-		public Rational(int numerator, int denominator)
-		{
-			_numerator = numerator;
-			_denominator = denominator;
-		}
+        public Rational(int numerator, int denominator)
+        {
+            _numerator = numerator;
+            _denominator = denominator;
+        }
 
         public Rational(double value)
         {
-            if (double.IsPositiveInfinity(value))
-            {
-                _numerator = 1;
-                _denominator = 0;
-            }
-            else if (double.IsNegativeInfinity(value))
-            {
-                _numerator = -1;
-                _denominator = 0;
-            }
-            else if (double.IsNaN(value))
-            {
-                _numerator = 0;
-                _denominator = 0;
-            }
-            else
-            {
-                // TODO: this algorithm has really bad rounding errors. Use a better algorithm
-                // if this function will used often.
+            this = FromDouble(value);
+        }
 
-                const double tolerance = 1e-8;
+        #endregion
 
-                bool isNegative = false;
-                if (value < 0)
-                {
-                    value *= -1;
-                    isNegative = true;
-                }
-                // Set numerator to 'value' for now; we will set it to the actual numerator once we know
-                // what the denominator is.
-                double numerator = value;
+        #region Properties
 
-                // Get the denominator
-                double denominator = 1.0;
-                double fractionPart = value - Math.Truncate(value);
-                int n = 0;
-                while (MathEx.Abs(fractionPart) > tolerance && n < 100)
-                {
-                    value = 1.0 / fractionPart;
-                    denominator *= value;
-                    fractionPart = value - Math.Truncate(value);
-                    n++;
-                }
+        public int Numerator
+        {
+            get { return _numerator; }
+        }
 
-                // Get the actual numerator
-                numerator *= denominator;
-                _numerator = (int)numerator;
-                if (isNegative)
-                    _numerator *= -1;
-                _denominator = (int)denominator;
+        public int Denominator
+        {
+            get { return _denominator; }
+        }
+
+        public double Value
+        {
+            get
+            {
+                return (double)Numerator / (double)Denominator;
             }
         }
 
-		#endregion
-
-		#region Properties
-
-		public int Numerator
-		{
-			get { return _numerator; }
-		}
-
-		public int Denominator
-		{
-			get { return _denominator; }
-		}
-
-		public double Value
-		{
-			get
-			{
-				return (double)Numerator / (double)Denominator;
-			}
-		}
-
-		public Rational Inverse()
-		{
-			if (Numerator >= 0)
-			{
-				return new Rational(Denominator, Numerator);
-			}
-			else
-			{
-				return new Rational(-Denominator, -Numerator);
-			}
-		}
+        public Rational Inverse()
+        {
+            if (Numerator >= 0)
+            {
+                return new Rational(Denominator, Numerator);
+            }
+            else
+            {
+                return new Rational(-Denominator, -Numerator);
+            }
+        }
 
         public Rational Negate()
         {
             return new Rational(-Numerator, Denominator);
         }
 
-		#endregion
+        #endregion
 
         #region Instance Methods
 
         /// <summary>
-		/// Gets the simplified version of the rational number.
-		/// </summary>
-		public static Rational Simplify(int numerator, int denominator)
-		{
-			if (denominator == 0)
-				return new Rational(Math.Sign(numerator), 0);
+        /// Gets the simplified version of the rational number.
+        /// </summary>
+        public static Rational Simplify(int numerator, int denominator)
+        {
+            if (denominator == 0)
+                return new Rational(Math.Sign(numerator), 0);
 
             var gcd = MathEx.Gcd(numerator, denominator);
             // The denominator in the simplified version should always be positive,
             // so if it is negative, multiply both numbers by -1.
-			if (denominator < 0)
-				gcd *= -1;
-			return new Rational(numerator / gcd, denominator / gcd);
-		}
+            if (denominator < 0)
+                gcd *= -1;
+            return new Rational(numerator / gcd, denominator / gcd);
+        }
 
         /// <summary>
         /// Gets the simplified version of the rational number.
@@ -561,73 +582,73 @@ namespace MathExtension
             return Simplify(_numerator, _denominator);
         }
 
-		/// <summary>
-		/// Converts the Rational to a string in the form of an improper fraction.
-		/// </summary>
-		/// <returns>A string representaion of the rational number.</returns>
-		public override string ToString()
-		{
-			return Numerator.ToString() + (Denominator != 1 ? "/" + Denominator.ToString() : string.Empty);
-		}
+        /// <summary>
+        /// Converts the Rational to a string in the form of an improper fraction.
+        /// </summary>
+        /// <returns>A string representaion of the rational number.</returns>
+        public override string ToString()
+        {
+            return Numerator.ToString() + (Denominator != 1 ? "/" + Denominator.ToString() : string.Empty);
+        }
 
-		/// <summary>
-		/// Converts the Rational to a string in the form of a mixed fraction.
-		/// </summary>
-		/// <returns>A string representaion of the rational number.</returns>
-		public string ToMixedString()
-		{
-			return ToMixedString(" ");
-		}
+        /// <summary>
+        /// Converts the Rational to a string in the form of a mixed fraction.
+        /// </summary>
+        /// <returns>A string representaion of the rational number.</returns>
+        public string ToMixedString()
+        {
+            return ToMixedString(" ");
+        }
 
-		/// <summary>
-		/// Converts the Rational to a string in the form of a mixed fraction.
-		/// </summary>
-		/// <param name="numberSeparator">The separator between the number part and the fraction part</param>
-		/// <returns>A string representaion of the rational number.</returns>
-		public string ToMixedString(string numberSeparator)
-		{
-			string s = string.Empty;
-			Rational x = this;
-			if (x < Zero)
-			{
-				s += "-";
-				x = x.Negate();
-			}
-			else if (x.Numerator < 0)
-			{
-				// The numerator and denominator are both negative
+        /// <summary>
+        /// Converts the Rational to a string in the form of a mixed fraction.
+        /// </summary>
+        /// <param name="numberSeparator">The separator between the number part and the fraction part</param>
+        /// <returns>A string representaion of the rational number.</returns>
+        public string ToMixedString(string numberSeparator)
+        {
+            string s = string.Empty;
+            Rational x = this;
+            if (x < Zero)
+            {
+                s += "-";
+                x = x.Negate();
+            }
+            else if (x.Numerator < 0)
+            {
+                // The numerator and denominator are both negative
                 x = new Rational(-x.Numerator, -x.Denominator);
-			}
-			bool hasIntegerPart = false;
-			if (x.Numerator >= x.Denominator)
-			{
-				s += ((int)x).ToString();
-				hasIntegerPart = true;
-			}
-			Rational fractionPart = x % Rational.One;
-			bool hasFractionPart = fractionPart.Numerator != 0;
-			if (hasFractionPart)
-			{
-				if (hasIntegerPart)
-					s += numberSeparator;
-				s += fractionPart.ToString();
-			}
-			else if (!hasIntegerPart)
-			{
-				s = "0";
-			}
-			return s;
-		}
+            }
+            bool hasIntegerPart = false;
+            if (x.Numerator >= x.Denominator)
+            {
+                s += ((int)x).ToString();
+                hasIntegerPart = true;
+            }
+            Rational fractionPart = x % Rational.One;
+            bool hasFractionPart = fractionPart.Numerator != 0;
+            if (hasFractionPart)
+            {
+                if (hasIntegerPart)
+                    s += numberSeparator;
+                s += fractionPart.ToString();
+            }
+            else if (!hasIntegerPart)
+            {
+                s = "0";
+            }
+            return s;
+        }
 
         /// <summary>
         /// Indicates whether this instance and a specified object are equal.
         /// </summary>
         /// <param name="obj">Another object to compare to.</param>
         /// <returns><value>true</value> if the current object and <paramref name="obj"/> are the same type and represent the same value; otherwise, <value>false</value>.</returns>
-		public override bool Equals(object obj)
-		{
-			return (obj is Rational) && this == (Rational)obj;
-		}
+        public override bool Equals(object obj)
+        {
+            return (obj is Rational) && this == (Rational)obj;
+        }
 
         /// <summary>
         /// Indicates whether this instance and a specified <see cref="Rational"/> are strictly equal; that is, the two instances must have equal numerators and denominators.
@@ -647,12 +668,12 @@ namespace MathExtension
         /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>the hash code.</returns>
-		public override int GetHashCode()
-		{
+        public override int GetHashCode()
+        {
             // Get the hash code of the simplified Rational. Equivalent Rationals (e.g. 1/2 and 2/4) should have the same hash code.
             var simplified = Simplify();
             return FnvCombine(simplified.Numerator.GetHashCode(), simplified.Denominator.GetHashCode());
-		}
+        }
 
         private static int FnvCombine(params int[] hashes)
         {
@@ -670,50 +691,50 @@ namespace MathExtension
         #region Operators
 
         public static bool operator ==(Rational x, Rational y)
-		{
-			return x.CompareTo(y) == 0;
-		}
+        {
+            return x.CompareTo(y) == 0;
+        }
 
-		public static bool operator !=(Rational x, Rational y)
-		{
-			return !(x == y);
-		}
+        public static bool operator !=(Rational x, Rational y)
+        {
+            return !(x == y);
+        }
 
-		public static bool operator >(Rational x, Rational y)
-		{
-			return x.CompareTo(y) > 0;
-		}
+        public static bool operator >(Rational x, Rational y)
+        {
+            return x.CompareTo(y) > 0;
+        }
 
-		public static bool operator >=(Rational x, Rational y)
-		{
-			return !(x < y);
-		}
+        public static bool operator >=(Rational x, Rational y)
+        {
+            return !(x < y);
+        }
 
-		public static bool operator <(Rational x, Rational y)
-		{
-			return x.CompareTo(y) < 0;
-		}
+        public static bool operator <(Rational x, Rational y)
+        {
+            return x.CompareTo(y) < 0;
+        }
 
-		public static bool operator <=(Rational x, Rational y)
-		{
-			return !(x > y);
-		}
+        public static bool operator <=(Rational x, Rational y)
+        {
+            return !(x > y);
+        }
 
-		public static Rational operator +(Rational x)
-		{
-			return x;
-		}
+        public static Rational operator +(Rational x)
+        {
+            return x;
+        }
 
-		public static Rational operator -(Rational x)
-		{
-			if (x.Denominator < 0)
-				return new Rational(x.Numerator, -x.Denominator);
-			else
-				return new Rational(-x.Numerator, x.Denominator);
-		}
+        public static Rational operator -(Rational x)
+        {
+            if (x.Denominator < 0)
+                return new Rational(x.Numerator, -x.Denominator);
+            else
+                return new Rational(-x.Numerator, x.Denominator);
+        }
 
-		public static Rational operator +(Rational x, Rational y)
-		{
+        public static Rational operator +(Rational x, Rational y)
+        {
             if (x.Denominator == 0)
             {
                 if (y.Denominator == 0 && Math.Sign(x.Numerator) != Math.Sign(y.Numerator))
@@ -727,14 +748,14 @@ namespace MathExtension
                 return new Rational(Math.Sign(y.Numerator), 0);
             }
 
-			int denominator = MathEx.Lcm(x.Denominator, y.Denominator);
-			int xFactor = denominator / x.Denominator;
-			int yFactor = denominator / y.Denominator;
-			int numerator = x.Numerator * xFactor + y.Numerator * yFactor;
+            int denominator = MathEx.Lcm(x.Denominator, y.Denominator);
+            int xFactor = denominator / x.Denominator;
+            int yFactor = denominator / y.Denominator;
+            int numerator = x.Numerator * xFactor + y.Numerator * yFactor;
             return Rational.Simplify(numerator, denominator);
-		}
+        }
 
-		public static Rational operator -(Rational x, Rational y)
+        public static Rational operator -(Rational x, Rational y)
         {
             if (x.Denominator == 0)
             {
@@ -749,37 +770,37 @@ namespace MathExtension
                 return new Rational(-Math.Sign(y.Numerator), 0);
             }
 
-			int denominator = MathEx.Lcm(x.Denominator, y.Denominator);
-			int xFactor = denominator / x.Denominator;
-			int yFactor = denominator / y.Denominator;
-			int numerator = x.Numerator * xFactor - y.Numerator * yFactor;
-			return Rational.Simplify(numerator, denominator);
-		}
+            int denominator = MathEx.Lcm(x.Denominator, y.Denominator);
+            int xFactor = denominator / x.Denominator;
+            int yFactor = denominator / y.Denominator;
+            int numerator = x.Numerator * xFactor - y.Numerator * yFactor;
+            return Rational.Simplify(numerator, denominator);
+        }
 
-		public static Rational operator *(Rational x, Rational y)
-		{
+        public static Rational operator *(Rational x, Rational y)
+        {
             return Rational.Simplify(x.Numerator * y.Numerator, x.Denominator * y.Denominator);
-		}
+        }
 
-		public static Rational operator /(Rational x, Rational y)
-		{
+        public static Rational operator /(Rational x, Rational y)
+        {
             return Rational.Simplify(x.Numerator * y.Denominator, x.Denominator * y.Numerator);
-		}
+        }
 
-		public static Rational operator %(Rational x, Rational y)
-		{
+        public static Rational operator %(Rational x, Rational y)
+        {
             if (y.Denominator == 0)
                 return x.Denominator == 0 || y.Numerator == 0 ? Indeterminate : x.Simplify();
-			if (x.Denominator == 0)
-				return x.Simplify();
-			if (x.Numerator == 0 || y.Numerator == 0)
-				return Zero;
+            if (x.Denominator == 0)
+                return x.Simplify();
+            if (x.Numerator == 0 || y.Numerator == 0)
+                return Zero;
 
             var xNum = Math.BigMul(x.Numerator, y.Denominator);
             var yNum = Math.BigMul(y.Numerator, x.Denominator);
-			int denominator = x.Denominator * y.Denominator;
+            int denominator = x.Denominator * y.Denominator;
             return Rational.Simplify((int)(xNum % yNum), denominator);
-		}
+        }
 
         public static Rational operator ++(Rational x)
         {
@@ -791,19 +812,19 @@ namespace MathExtension
             return x - Rational.One;
         }
 
-		#endregion
+        #endregion
 
-		#region Casts
+        #region Casts
 
-		public static implicit operator Rational(int x)
-		{
-			return new Rational(x);
-		}
+        public static implicit operator Rational(int x)
+        {
+            return new Rational(x);
+        }
 
-		public static explicit operator int(Rational x)
-		{
-			return x.Numerator / x.Denominator;
-		}
+        public static explicit operator int(Rational x)
+        {
+            return x.Numerator / x.Denominator;
+        }
 
         public static implicit operator Rational(uint x)
         {
@@ -855,39 +876,39 @@ namespace MathExtension
             return (ulong)(x.Numerator / x.Denominator);
         }
 
-		public static explicit operator Rational(float x)
-		{
-			return new Rational(x);
-		}
+        public static explicit operator Rational(float x)
+        {
+            return new Rational(x);
+        }
 
-		public static explicit operator float(Rational x)
-		{
-			return (float)x.Value;
-		}
+        public static explicit operator float(Rational x)
+        {
+            return (float)x.Value;
+        }
 
-		public static explicit operator Rational(double x)
-		{
-			return new Rational(x);
-		}
+        public static explicit operator Rational(double x)
+        {
+            return new Rational(x);
+        }
 
-		public static explicit operator double(Rational x)
-		{
-			return x.Value;
-		}
+        public static explicit operator double(Rational x)
+        {
+            return x.Value;
+        }
 
-		public static explicit operator Rational(decimal x)
-		{
-			return Rational.FromDouble((double)x);
-		}
+        public static explicit operator Rational(decimal x)
+        {
+            return Rational.FromDouble((double)x);
+        }
 
-		public static explicit operator decimal(Rational x)
-		{
-			return (decimal)x.Numerator / (decimal)x.Denominator;
-		}
+        public static explicit operator decimal(Rational x)
+        {
+            return (decimal)x.Numerator / (decimal)x.Denominator;
+        }
 
-		#endregion
+        #endregion
 
-		#region IComparable Members
+        #region IComparable Members
 
         public int CompareTo(object obj)
         {
@@ -904,31 +925,31 @@ namespace MathExtension
             return CompareTo(r);
         }
 
-		#endregion
+        #endregion
 
-		#region IComparable<Rational> Members
+        #region IComparable<Rational> Members
 
-		public int CompareTo(Rational other)
-		{
-			if (Denominator == 0)
-			{
-				if (other.Denominator == 0)
-					return Math.Sign(Numerator).CompareTo(Math.Sign(other.Numerator));
-				return Numerator == 0 ? -1 : Math.Sign(Numerator);
-			}
-			if (other.Denominator == 0)
-			{
+        public int CompareTo(Rational other)
+        {
+            if (Denominator == 0)
+            {
+                if (other.Denominator == 0)
+                    return Math.Sign(Numerator).CompareTo(Math.Sign(other.Numerator));
+                return Numerator == 0 ? -1 : Math.Sign(Numerator);
+            }
+            if (other.Denominator == 0)
+            {
                 return other.Numerator == 0 ? 1 : -Math.Sign(other.Numerator);
-			}
-			// Use BigMul to avoid losing data when multiplying large integers
-			long value1 = Math.BigMul(Numerator, other.Denominator);
-			long value2 = Math.BigMul(Denominator, other.Numerator);
-			return value1.CompareTo(value2);
-		}
+            }
+            // Use BigMul to avoid losing data when multiplying large integers
+            long value1 = Math.BigMul(Numerator, other.Denominator);
+            long value2 = Math.BigMul(Denominator, other.Numerator);
+            return value1.CompareTo(value2);
+        }
 
-		#endregion
+        #endregion
 
-		#region IFormattable Members
+        #region IFormattable Members
 
         /// <summary>
         /// Converts this instance to its equivalent string representation.
@@ -936,21 +957,21 @@ namespace MathExtension
         /// <param name="format">The format to use for both the numerator and the denominator.</param>
         /// <param name="formatProvider">An object that has culture-specific formatting information.</param>
         /// <returns>The string representation of the <see cref="Rational"/>.</returns>
-		public string ToString(string format, IFormatProvider formatProvider)
-		{
-			return Numerator.ToString(format, formatProvider) + (Denominator != 1 ? "/" + Denominator.ToString(format, formatProvider) : string.Empty);
-		}
+        public string ToString(string format, IFormatProvider formatProvider)
+        {
+            return Numerator.ToString(format, formatProvider) + (Denominator != 1 ? "/" + Denominator.ToString(format, formatProvider) : string.Empty);
+        }
 
-		#endregion
+        #endregion
 
-		#region IEquatable<Rational> Members
+        #region IEquatable<Rational> Members
 
-		public bool Equals(Rational other)
-		{
-			return this == other;
-		}
+        public bool Equals(Rational other)
+        {
+            return this == other;
+        }
 
-		#endregion
+        #endregion
 
         #region IConvertible Members
 
