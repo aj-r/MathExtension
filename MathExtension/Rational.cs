@@ -240,6 +240,7 @@ namespace MathExtension
         /// Converts a floating-point number to a rational number.
         /// </summary>
         /// <param name="value">A floating-point number to convert to a rational number.</param>
+        /// <param name="tolerance">The maximum error allowed between the result and the input value.</param>
         /// <returns>A rational number.</returns>
         public static Rational FromDouble(double value, double tolerance = MathEx.DEFAULT_TOLERANCE)
         {
@@ -250,18 +251,12 @@ namespace MathExtension
             if (double.IsNaN(value))
                 return Indeterminate;
 
-            // TODO: this algorithm has really bad rounding errors. Use a better algorithm
-            // if this function will used often.
-
-            bool isNegative = false;
-            if (value < 0)
-            {
-                value *= -1;
-                isNegative = true;
-            }
             // Set numerator to 'value' for now; we will set it to the actual numerator once we know
             // what the denominator is.
             double numerator = value;
+
+            if (value < 0)
+                value *= -1;
 
             // Get the denominator
             double denominator = 1.0;
@@ -271,14 +266,12 @@ namespace MathExtension
             {
                 value = 1.0 / fractionPart;
                 denominator *= value;
-                fractionPart = value - Math.Truncate(value);
+                fractionPart = value % 1.0;
                 n++;
             }
 
             // Get the actual numerator
             numerator *= denominator;
-            if (isNegative)
-                numerator *= -1;
             return new Rational(Convert.ToInt32(numerator), Convert.ToInt32(denominator));
         }
 
@@ -287,6 +280,10 @@ namespace MathExtension
         /// </summary>
         /// <param name="value">A floating-point number to convert to a rational number.</param>
         /// <param name="maxDenominator">The maximum value that the denominator can have.</param>
+        /// <param name="tolerance">
+        /// The desired maximum error between the result and the input value. This is only used as an alternative end condition; 
+        /// the actual error may be greater because of the limitation on the denominator value.
+        /// </param>
         /// <returns>A rational number.</returns>
         public static Rational FromDoubleWithMaxDenominator(double value, int maxDenominator, double tolerance = MathEx.DEFAULT_TOLERANCE)
         {
@@ -298,9 +295,7 @@ namespace MathExtension
                 return Indeterminate;
 
             if (maxDenominator < 1)
-            {
-                throw new ArgumentException("Maximum denominator base must be greater than or equal to 1.", "maxDenominator");
-            }
+                throw new ArgumentOutOfRangeException("Maximum denominator base must be greater than or equal to 1.", "maxDenominator");
 
             int denominator = 0;
             int bestDenominator = 1;
@@ -310,7 +305,7 @@ namespace MathExtension
             {
                 denominator++;
                 numerator = value * (double)denominator;
-                double difference = numerator % 1.0;
+                double difference = Math.Abs(numerator % 1.0);
                 if (difference < bestDifference)
                 {
                     bestDifference = difference;

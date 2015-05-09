@@ -699,7 +699,7 @@ namespace MathExtension
             else if (order > 4)
             {
                 // Order is too high to solve.
-                throw new NotSupportedException(order + "-order polynomials are not supported.");
+                throw new NotSupportedException("order-" + order + " polynomials are not supported.");
             }
             return roots;
         }
