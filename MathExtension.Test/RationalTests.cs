@@ -242,6 +242,7 @@ namespace MathExtension.Test
             new TestCaseData(1.0 / 7.0).Returns(new Rational(1, 7)),
             new TestCaseData(3.0 / 14.0).Returns(new Rational(3, 14)),
             new TestCaseData(47.0 / 49.0).Returns(new Rational(47, 49)),
+            new TestCaseData(1394687.0 / 27849.0).Returns(new Rational(1394687, 27849)),
             new TestCaseData(-1.0 / 5.0).Returns(new Rational(-1, 5)),
             new TestCaseData(double.PositiveInfinity).Returns(new Rational(1, 0)),
             new TestCaseData(double.NegativeInfinity).Returns(new Rational(-1, 0)),

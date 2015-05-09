@@ -236,14 +236,12 @@ namespace MathExtension
             return int.TryParse(s, style, provider, out result);
         }
 
-        private const double fromDoubleTolerance = 1e-8;
-
         /// <summary>
         /// Converts a floating-point number to a rational number.
         /// </summary>
         /// <param name="value">A floating-point number to convert to a rational number.</param>
         /// <returns>A rational number.</returns>
-        public static Rational FromDouble(double value)
+        public static Rational FromDouble(double value, double tolerance = MathEx.DEFAULT_TOLERANCE)
         {
             if (double.IsPositiveInfinity(value))
                 return PositiveInfinity;
@@ -269,7 +267,7 @@ namespace MathExtension
             double denominator = 1.0;
             double fractionPart = value - Math.Truncate(value);
             int n = 0;
-            while (!MathEx.IsInteger(fractionPart, fromDoubleTolerance) && n < 100)
+            while (!MathEx.IsInteger(fractionPart, tolerance) && n < 100)
             {
                 value = 1.0 / fractionPart;
                 denominator *= value;
@@ -288,37 +286,9 @@ namespace MathExtension
         /// Converts a floating-point decimal to a rational number.
         /// </summary>
         /// <param name="value">A floating-point number to convert to a rational number.</param>
-        /// <param name="denominatorBase">A base that the denominator must be a power of.</param>
-        /// <returns>A rational number.</returns>
-        public static Rational FromDouble(double value, int denominatorBase)
-        {
-            if (double.IsPositiveInfinity(value))
-                return PositiveInfinity;
-            if (double.IsNegativeInfinity(value))
-                return NegativeInfinity;
-            if (double.IsNaN(value))
-                return Indeterminate;
-
-            if (denominatorBase <= 1)
-                throw new ArgumentException("Denominator base must be greater than 1.", "denominatorBase");
-
-            int denominator = 1;
-            while (!MathEx.IsInteger(value, fromDoubleTolerance))
-            {
-                value *= (double)denominatorBase;
-                denominator *= denominatorBase;
-            }
-
-            return new Rational(Convert.ToInt32(value), denominator);
-        }
-
-        /// <summary>
-        /// Converts a floating-point decimal to a rational number.
-        /// </summary>
-        /// <param name="value">A floating-point number to convert to a rational number.</param>
         /// <param name="maxDenominator">The maximum value that the denominator can have.</param>
         /// <returns>A rational number.</returns>
-        public static Rational FromDoubleWithMaxDenominator(double value, int maxDenominator)
+        public static Rational FromDoubleWithMaxDenominator(double value, int maxDenominator, double tolerance = MathEx.DEFAULT_TOLERANCE)
         {
             if (double.IsPositiveInfinity(value))
                 return PositiveInfinity;
@@ -346,7 +316,7 @@ namespace MathExtension
                     bestDifference = difference;
                     bestDenominator = denominator;
                 }
-            } while (!MathEx.IsInteger(numerator, fromDoubleTolerance) && denominator < maxDenominator);
+            } while (!MathEx.IsInteger(numerator, tolerance) && denominator < maxDenominator);
 
             return new Rational(Convert.ToInt32(numerator), denominator);
         }
