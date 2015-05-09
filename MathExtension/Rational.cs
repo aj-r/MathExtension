@@ -1,145 +1,219 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace MathExtension
 {
 	[Serializable]
-	public struct Rational : IComparable, IComparable<Rational>, IFormattable, IEquatable<Rational>
+	public struct Rational : IComparable, IComparable<Rational>, IConvertible, IEquatable<Rational>, IFormattable
 	{
 		private readonly int _numerator;
         private readonly int _denominator;
 
+        /// <summary>
+        /// Represents the number zero.
+        /// </summary>
 		public static readonly Rational Zero = new Rational(0, 1);
 
+        /// <summary>
+        /// Represents the number one.
+        /// </summary>
         public static readonly Rational One = new Rational(1, 1);
 
+        /// <summary>
+        /// Represents the minimum finite value of a <see cref="Rational"/>.
+        /// </summary>
 		public static readonly Rational MinValue = new Rational(int.MinValue, 1);
 
-		public static readonly Rational MaxValue = new Rational(int.MaxValue, 1);
+        /// <summary>
+        /// Represents the maximum finite value of a <see cref="Rational"/>.
+        /// </summary>
+        public static readonly Rational MaxValue = new Rational(int.MaxValue, 1);
 
+        /// <summary>
+        /// Represents the minimum positive value of a <see cref="Rational"/>.
+        /// </summary>
+        public static readonly Rational Epsilon = new Rational(1, int.MaxValue);
+
+        /// <summary>
+        /// Represents an indeterminate value.
+        /// </summary>
 		public static readonly Rational Indeterminate = new Rational(0, 0);
-
+        
+        /// <summary>
+        /// Represents positive infinity.
+        /// </summary>
 		public static readonly Rational PositiveInfinity = new Rational(1, 0);
-
+        
+        /// <summary>
+        /// Represents negative infinity.
+        /// </summary>
 		public static readonly Rational NegativeInfinity = new Rational(-1, 0);
 
 		#region Static Methods
 
-		public static Rational Parse(string s)
-		{
-			if (string.IsNullOrEmpty(s))
-			{
-				throw new FormatException();
-			}
-			// Start at one, in case the first character is a negative sign.
-			int i = 1;
+        /// <summary>
+        /// Converts the string representation of a number to its <see cref="Rational"/> representation.
+        /// </summary>
+        /// <param name="s">A string that represents a number.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
+        public static Rational Parse(string s)
+        {
+            return Parse(s, null);
+        }
 
-			while (i < s.Length && char.IsDigit(s[i]))
-			{
-				i++;
-			}
-			if (i == s.Length)
-			{
-				// The input string only has an integer part.
-				return new Rational(int.Parse(s));
-			}
+        /// <summary>
+        /// Converts the string representation of a number to its <see cref="Rational"/> representation.
+        /// </summary>
+        /// <param name="s">A string that represents a number.</param>
+        /// <param name="style">Indicates the styles that can be present when parsing a number.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
+        public static Rational Parse(string s, NumberStyles style)
+        {
+            return Parse(s, style, null);
+        }
 
-			// Get the first number by parsing from the beginning of the string to i.
-			int firstNumber = int.Parse(s.Remove(i));
+        /// <summary>
+        /// Converts the string representation of a number to its <see cref="Rational"/> representation.
+        /// </summary>
+        /// <param name="s">A string that represents a number.</param>
+        /// <param name="provider">An object that supplies culture-specific information about the format of <paramref name="s"/>.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
+        public static Rational Parse(string s, IFormatProvider provider)
+        {
+            return Parse(s, NumberStyles.Any, null);
+        }
 
-			// Check for common separators - if found, then the first number is actually
-			// the integer part, not the numerator.
-			bool hasIntegerPart = false;
-			bool hasDash = false;
-			while (i < s.Length && (s[i] == ' ' || s[i] == '-'))
-			{
-				if (s[i] == '-')
-				{
-					if (hasDash)
-						throw new FormatException();	// Cannot have multiple dashes
-					hasDash = true;
-				}
-				hasIntegerPart = true;
-				i++;
-			}
-			if (i == s.Length)
-			{
-				if (hasDash)
-				{
-					// A dash was placed at the end of the string.
-					throw new FormatException();
-				}
-				// If there were only spaces after the number, then the input string only has an integer part.
-				return new Rational(firstNumber);
-			}
+        /// <summary>
+        /// Converts the string representation of a number to its <see cref="Rational"/> representation.
+        /// </summary>
+        /// <param name="s">A string that represents a number.</param>
+        /// <param name="style">Indicates the styles that can be present when parsing a number.</param>
+        /// <param name="provider">An object that supplies culture-specific information about the format of <paramref name="s"/>.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
+        public static Rational Parse(string s, NumberStyles style, IFormatProvider provider)
+        {
+            Rational result;
+            TryParse(s, style, provider, true, out result);
+            return result;
+        }
 
-			int integerPart;
-			int numerator;
+        /// <summary>
+        /// Converts the string representation of a number to its <see cref="Rational"/> representation. A return value indicates whether the conversion succeeded or failed.
+        /// </summary>
+        /// <param name="s">A string that represents a number.</param>
+        /// <returns>True if the conversion succeeded; otherwise false.</returns>
+        public static bool TryParse(string s, out Rational result)
+        {
+            return TryParse(s, null, out result);
+        }
 
-			if (hasIntegerPart)
-			{
-				integerPart = firstNumber;
+        /// <summary>
+        /// Converts the string representation of a number to its <see cref="Rational"/> representation. A return value indicates whether the conversion succeeded or failed.
+        /// </summary>
+        /// <param name="s">A string that represents a number.</param>
+        /// <param name="style">Indicates the styles that can be present when parsing a number.</param>
+        /// <returns>True if the conversion succeeded; otherwise false.</returns>
+        public static bool TryParse(string s, NumberStyles style, out Rational result)
+        {
+            return TryParse(s, style, null, out result);
+        }
 
-				int j = i;
-				// Now parse the actual numerator
-				if (!char.IsDigit(s[j]))
-				{
-					throw new FormatException();
-				}
-				// Increment j until we find the end of the number.
-				while (j < s.Length && char.IsDigit(s[j]))
-				{
-					j++;
-				}
-				if (j == s.Length)
-				{
-					// We can't be at the end of the string yet - we haven't gotten the denominator yet!
-					throw new FormatException();
-				}
+        /// <summary>
+        /// Converts the string representation of a number to its <see cref="Rational"/> representation. A return value indicates whether the conversion succeeded or failed.
+        /// </summary>
+        /// <param name="s">A string that represents a number.</param>
+        /// <param name="provider">An object that supplies culture-specific information about the format of <paramref name="s"/>.</param>
+        /// <returns>True if the conversion succeeded; otherwise false.</returns>
+        public static bool TryParse(string s, IFormatProvider provider, out Rational result)
+        {
+            return TryParse(s, NumberStyles.Any, provider, out result);
+        }
 
-				// Parse the string between i and j (excluding the character at j)
-				numerator = int.Parse(s.Substring(i, j - i));
+        /// <summary>
+        /// Converts the string representation of a number to its <see cref="Rational"/> representation. A return value indicates whether the conversion succeeded or failed.
+        /// </summary>
+        /// <param name="s">A string that represents a number.</param>
+        /// <param name="style">Indicates the styles that can be present when parsing a number.</param>
+        /// <param name="provider">An object that supplies culture-specific information about the format of <paramref name="s"/>.</param>
+        /// <returns>True if the conversion succeeded; otherwise false.</returns>
+        public static bool TryParse(string s, NumberStyles style, IFormatProvider provider, out Rational result)
+        {
+            return TryParse(s, style, provider, false, out result);
+        }
 
-				// set i equal to j to get ready to parse the denominator.
-				i = j;
-			}
-			else
-			{
-				// If there is not integer part, then the first number we parsed was the numerator.
-				integerPart = 0;
-				numerator = firstNumber;
-			}
+        private static bool TryParse(string s, NumberStyles style, IFormatProvider provider, bool throwOnFailure, out Rational result)
+        {
+            if (string.IsNullOrWhiteSpace(s))
+                return ParseFailure(throwOnFailure, out result);
+            var parts = s.Split('/');
+            if (parts.Length > 2)
+                return ParseFailure(throwOnFailure, out result);
+            if (parts.Length == 1)
+            {
+                int n;
+                if (!int.TryParse(s, style, provider, out n))
+                {
+                    // Maybe the number is in decimal format. Try parsing as such.
+                    double d;
+                    if (!double.TryParse(s, style, provider, out d))
+                        return ParseFailure(throwOnFailure, out result);
+                    result = FromDouble(d);
+                    return true;
+                }
+                result = new Rational(n);
+                return true;
+            }
 
-			// Parse the denominator
-			if (s[i] != '/')
-			{
-				throw new FormatException();
-			}
-			i++;
-			if (i == s.Length)
-			{
-				throw new FormatException();
-			}
-			// Parse the number from here to the end of the string.
-			int denominator = int.Parse(s.Substring(i));
+            var numeratorString = parts[0].Trim();
 
-			return new Rational(integerPart * denominator + numerator, denominator);
-		}
+            var separatorIndex = numeratorString.LastIndexOf('-');
+            if (separatorIndex <= 0)
+                separatorIndex = numeratorString.LastIndexOf(' ');
+            int integerPart = 0;
+            if (separatorIndex > 0)
+            {
+                var integerString = numeratorString.Remove(separatorIndex);
+                numeratorString = numeratorString.Substring(separatorIndex + 1);
+                if (!TryParseInt(integerString, style, provider, throwOnFailure, out integerPart))
+                {
+                    result = Indeterminate;
+                    return false;
+                }
+            }
+            int numerator, denominator;
+            if (!TryParseInt(numeratorString, style, provider, throwOnFailure, out numerator)
+                || !TryParseInt(parts[1], style, provider, throwOnFailure, out denominator))
+            {
+                result = Indeterminate;
+                return false;
+            }
+            if (integerPart < 0)
+                numerator *= -1;
 
-		public static bool TryParse(string s, out Rational result)
-		{
-			try
-			{
-				result = Parse(s);
-				return true;
-			}
-			catch (FormatException)
-			{
-				result = Indeterminate;
-				return false;
-			}
-		}
+            result = new Rational(integerPart * denominator + numerator, denominator);
+            return true;
+        }
+
+        private static bool ParseFailure(bool throwOnFailure, out Rational result)
+        {
+            if (throwOnFailure)
+                throw new FormatException();
+            result = Indeterminate;
+            return false;
+        }
+
+        private static bool TryParseInt(string s, NumberStyles style, IFormatProvider provider, bool throwOnFailure, out int result)
+        {
+            if (throwOnFailure)
+            {
+                result = int.Parse(s, style, provider);
+                return true;
+            }
+            return int.TryParse(s, style, provider, out result);
+        }
+
 
 		/// <summary>
 		/// Converts a floating-point number to a rational number.
@@ -271,20 +345,70 @@ namespace MathExtension
         /// <returns>The quotient.</returns>
         public static int DivRem(Rational a, Rational b, out Rational remainder)
         {
-            if (b.Numerator == 0 || a.Denominator == 0)
+            if (b._numerator == 0 || a._denominator == 0)
                 throw new DivideByZeroException();
-            if (b.Denominator == 0)
+            if (b._denominator == 0)
             {
                 remainder = a;
                 return 0;
             }
-            int xNum = a.Numerator * b.Denominator;
-            int yNum = b.Numerator * a.Denominator;
-            int denominator = a.Denominator * b.Denominator;
+            int xNum = a._numerator * b._denominator;
+            int yNum = b._numerator * a._denominator;
+            int denominator = a._denominator * b._denominator;
             int rem;
             var result = Math.DivRem(xNum, yNum, out rem);
             remainder = Rational.Simplify(rem, denominator);
             return result;
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether the specified <see cref="Rational"/> evaluates to positive or negative infinity.
+        /// </summary>
+        /// <param name="r">A rational number.</param>
+        /// <returns>True if <paramref name="r"/> evaluates to positive or negative infinity; otherwise false.</returns>
+        public bool IsInfinity(Rational r)
+        {
+            return r._denominator == 0 && r._numerator != 0;
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether the specified <see cref="Rational"/> evaluates to positive infinity.
+        /// </summary>
+        /// <param name="r">A rational number.</param>
+        /// <returns>True if <paramref name="r"/> evaluates to positive infinity; otherwise false.</returns>
+        public bool IsPositiveInfinity(Rational r)
+        {
+            return r._denominator == 0 && r._numerator > 0;
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether the specified <see cref="Rational"/> evaluates to negative infinity.
+        /// </summary>
+        /// <param name="r">A rational number.</param>
+        /// <returns>True if <paramref name="r"/> evaluates to negative infinity; otherwise false.</returns>
+        public bool IsNegativeInfinity(Rational r)
+        {
+            return r._denominator == 0 && r._numerator < 0;
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether the specified <see cref="Rational"/> represents an indeterminate value.
+        /// </summary>
+        /// <param name="r">A rational number.</param>
+        /// <returns>True if <paramref name="r"/> represents an indeterminate value; otherwise false.</returns>
+        public bool IsIndeterminate(Rational r)
+        {
+            return r._denominator == 0 && r._numerator == 0;
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether the specified <see cref="Rational"/> evaluates to zero.
+        /// </summary>
+        /// <param name="r">A rational number.</param>
+        /// <returns>True if <paramref name="r"/> evaluates to zero; otherwise false.</returns>
+        public bool IsZero(Rational r)
+        {
+            return r._numerator == 0 && r._denominator != 0;
         }
 
 		#endregion
@@ -397,7 +521,9 @@ namespace MathExtension
 
 		#endregion
 
-		/// <summary>
+        #region Instance Methods
+
+        /// <summary>
 		/// Gets the simplified version of the rational number.
 		/// </summary>
 		public static Rational Simplify(int numerator, int denominator)
@@ -432,7 +558,7 @@ namespace MathExtension
         /// </summary>
         public Rational Simplify()
         {
-            return Simplify(Numerator, Denominator);
+            return Simplify(_numerator, _denominator);
         }
 
 		/// <summary>
@@ -493,16 +619,34 @@ namespace MathExtension
 			return s;
 		}
 
+        /// <summary>
+        /// Indicates whether this instance and a specified object are equal.
+        /// </summary>
+        /// <param name="obj">Another object to compare to.</param>
+        /// <returns><value>true</value> if the current object and <paramref name="obj"/> are the same type and represent the same value; otherwise, <value>false</value>.</returns>
 		public override bool Equals(object obj)
 		{
 			return (obj is Rational) && this == (Rational)obj;
 		}
 
+        /// <summary>
+        /// Indicates whether this instance and a specified <see cref="Rational"/> are strictly equal; that is, the two instances must have equal numerators and denominators.
+        /// </summary>
+        /// <param name="r">Another <see cref="Rational"/> to compare to.</param>
+        /// <returns><value>true</value> if the current number and <paramref name="r"/> have equal numerators and denominators; otherwise, <value>false</value>.</returns>
+        /// <remarks>
+        /// The basic Equals implementation considers unsimplified fractions to be equal to their simplified forms; e.g. 2/4 = 1/2.
+        /// This method considers those values to be different.
+        /// </remarks>
         public bool StrictlyEquals(Rational r)
         {
             return Numerator == r.Numerator && Denominator == r.Denominator;
         }
 
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>the hash code.</returns>
 		public override int GetHashCode()
 		{
             // Get the hash code of the simplified Rational. Equivalent Rationals (e.g. 1/2 and 2/4) should have the same hash code.
@@ -521,9 +665,11 @@ namespace MathExtension
             }
         }
 
-		#region Operators
+        #endregion
 
-		public static bool operator ==(Rational x, Rational y)
+        #region Operators
+
+        public static bool operator ==(Rational x, Rational y)
 		{
 			return x.CompareTo(y) == 0;
 		}
@@ -623,7 +769,7 @@ namespace MathExtension
 		public static Rational operator %(Rational x, Rational y)
 		{
             if (y.Denominator == 0)
-                return x.Denominator == 0 || y.Numerator == 0 ? Indeterminate : x;
+                return x.Denominator == 0 || y.Numerator == 0 ? Indeterminate : x.Simplify();
 			if (x.Denominator == 0)
 				return x.Simplify();
 			if (x.Numerator == 0 || y.Numerator == 0)
@@ -659,6 +805,56 @@ namespace MathExtension
 			return x.Numerator / x.Denominator;
 		}
 
+        public static implicit operator Rational(uint x)
+        {
+            return new Rational(x);
+        }
+
+        public static explicit operator uint(Rational x)
+        {
+            return (uint)(x.Numerator / x.Denominator);
+        }
+
+        public static implicit operator Rational(short x)
+        {
+            return new Rational(x);
+        }
+
+        public static explicit operator short(Rational x)
+        {
+            return (short)(x.Numerator / x.Denominator);
+        }
+
+        public static implicit operator Rational(ushort x)
+        {
+            return new Rational(x);
+        }
+
+        public static explicit operator ushort(Rational x)
+        {
+            return (ushort)(x.Numerator / x.Denominator);
+        }
+
+        public static implicit operator Rational(long x)
+        {
+            return new Rational(x);
+        }
+
+        public static explicit operator long(Rational x)
+        {
+            return x.Numerator / x.Denominator;
+        }
+
+        public static implicit operator Rational(ulong x)
+        {
+            return new Rational(x);
+        }
+
+        public static explicit operator ulong(Rational x)
+        {
+            return (ulong)(x.Numerator / x.Denominator);
+        }
+
 		public static explicit operator Rational(float x)
 		{
 			return new Rational(x);
@@ -693,12 +889,20 @@ namespace MathExtension
 
 		#region IComparable Members
 
-		public int CompareTo(object obj)
-		{
+        public int CompareTo(object obj)
+        {
+            Rational r;
             if (!(obj is Rational))
-                throw new ArgumentException("Can only compare to rationals", "obj");
-			return CompareTo((Rational)obj);
-		}
+            {
+                r = (Rational)obj;
+            }
+            else
+            {
+                var d = Convert.ToDouble(obj);
+                r = new Rational(d);
+            }
+            return CompareTo(r);
+        }
 
 		#endregion
 
@@ -726,9 +930,15 @@ namespace MathExtension
 
 		#region IFormattable Members
 
+        /// <summary>
+        /// Converts this instance to its equivalent string representation.
+        /// </summary>
+        /// <param name="format">The format to use for both the numerator and the denominator.</param>
+        /// <param name="formatProvider">An object that has culture-specific formatting information.</param>
+        /// <returns>The string representation of the <see cref="Rational"/>.</returns>
 		public string ToString(string format, IFormatProvider formatProvider)
 		{
-			return Numerator.ToString(format, formatProvider) + "/" + Denominator.ToString(format, formatProvider);
+			return Numerator.ToString(format, formatProvider) + (Denominator != 1 ? "/" + Denominator.ToString(format, formatProvider) : string.Empty);
 		}
 
 		#endregion
@@ -742,5 +952,93 @@ namespace MathExtension
 
 		#endregion
 
-	}
+        #region IConvertible Members
+
+        TypeCode IConvertible.GetTypeCode()
+        {
+            return TypeCode.Object;
+        }
+
+        bool IConvertible.ToBoolean(IFormatProvider provider)
+        {
+            return !IsZero(this);
+        }
+
+        byte IConvertible.ToByte(IFormatProvider provider)
+        {
+            return (byte)(_numerator / _denominator);
+        }
+
+        char IConvertible.ToChar(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        DateTime IConvertible.ToDateTime(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        decimal IConvertible.ToDecimal(IFormatProvider provider)
+        {
+            return (decimal)this;
+        }
+
+        public double ToDouble(IFormatProvider provider)
+        {
+            return (double)this;
+        }
+
+        short IConvertible.ToInt16(IFormatProvider provider)
+        {
+            return (short)this;
+        }
+
+        int IConvertible.ToInt32(IFormatProvider provider)
+        {
+            return (int)this;
+        }
+
+        long IConvertible.ToInt64(IFormatProvider provider)
+        {
+            return (long)this;
+        }
+
+        sbyte IConvertible.ToSByte(IFormatProvider provider)
+        {
+            return (sbyte)(_numerator / _denominator);
+        }
+
+        float IConvertible.ToSingle(IFormatProvider provider)
+        {
+            return (float)this;
+        }
+
+        public string ToString(IFormatProvider provider)
+        {
+            return Numerator.ToString(provider) + (Denominator != 1 ? "/" + Denominator.ToString(provider) : string.Empty);
+        }
+
+        object IConvertible.ToType(Type conversionType, IFormatProvider provider)
+        {
+            return Convert.ChangeType((double)this, conversionType, provider);
+        }
+
+        ushort IConvertible.ToUInt16(IFormatProvider provider)
+        {
+            return (ushort)this;
+        }
+
+        uint IConvertible.ToUInt32(IFormatProvider provider)
+        {
+            return (uint)this;
+        }
+
+        ulong IConvertible.ToUInt64(IFormatProvider provider)
+        {
+            return (ulong)this;
+        }
+
+        #endregion
+    }
 }

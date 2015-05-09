@@ -253,5 +253,56 @@ namespace MathExtension.Test
         {
             return Rational.FromDouble(value);
         }
+
+        static TestCaseData[] parseTestCases =
+        {
+            new TestCaseData("1/17").Returns(new Rational(1, 17)),
+            new TestCaseData(" 15/2 ").Returns(new Rational(15, 2)),
+            new TestCaseData("7-1/2").Returns(new Rational(15, 2)),
+            new TestCaseData("7 1/2").Returns(new Rational(15, 2)),
+            new TestCaseData("1 / 2").Returns(new Rational(1, 2)),
+            new TestCaseData("5 - 3 / 4").Returns(new Rational(23, 4)),
+            new TestCaseData("-9/11").Returns(new Rational(-9, 11)),
+            new TestCaseData("-3 9/11").Returns(new Rational(-42, 11)),
+            new TestCaseData("0.6").Returns(new Rational(3, 5)),
+            new TestCaseData("-0.6").Returns(new Rational(-3, 5)),
+            new TestCaseData("1/").Throws(typeof(FormatException)),
+            new TestCaseData(" ").Throws(typeof(FormatException)),
+            new TestCaseData("1b").Throws(typeof(FormatException)),
+            new TestCaseData("1/2/3").Throws(typeof(FormatException)),
+        };
+
+        [TestCaseSource("parseTestCases")]
+        public Rational ParseTest(string s)
+        {
+            return Rational.Parse(s);
+        }
+
+        static TestCaseData[] tryParseTestCases =
+        {
+            new TestCaseData("1/17", new Rational(1, 17)).Returns(true),
+            new TestCaseData(" 15/2 ", new Rational(15, 2)).Returns(true),
+            new TestCaseData("7-1/2", new Rational(15, 2)).Returns(true),
+            new TestCaseData("7 1/2", new Rational(15, 2)).Returns(true),
+            new TestCaseData("1 / 2", new Rational(1, 2)).Returns(true),
+            new TestCaseData("5 - 3 / 4", new Rational(23, 4)).Returns(true),
+            new TestCaseData("-9/11", new Rational(-9, 11)).Returns(true),
+            new TestCaseData("-3 9/11", new Rational(-42, 11)).Returns(true),
+            new TestCaseData("0.6", new Rational(3, 5)).Returns(true),
+            new TestCaseData("-0.6", new Rational(-3, 5)).Returns(true),
+            new TestCaseData("1/", Rational.Indeterminate).Returns(false),
+            new TestCaseData(" ", Rational.Indeterminate).Returns(false),
+            new TestCaseData("1b", Rational.Indeterminate).Returns(false),
+            new TestCaseData("1/2/3", Rational.Indeterminate).Returns(false),
+        };
+
+        [TestCaseSource("tryParseTestCases")]
+        public bool TryParseTest(string s, Rational expected)
+        {
+            Rational r;
+            var result = Rational.TryParse(s, out r);
+            Assert.That(r, Is.EqualTo(expected));
+            return result;
+        }
     }
 }
