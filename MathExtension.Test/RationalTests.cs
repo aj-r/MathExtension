@@ -255,6 +255,17 @@ namespace MathExtension.Test
             return Rational.FromDouble(value);
         }
 
+        static TestCaseData[] fromDoubleTestCases_withTolerance =
+        {
+            new TestCaseData(0.66667, 1e-4).Returns(new Rational(2, 3)),
+        };
+
+        [TestCaseSource("fromDoubleTestCases_withTolerance")]
+        public Rational FromDoubleTest(double value, double tolerance)
+        {
+            return Rational.FromDouble(value, tolerance);
+        }
+
         static TestCaseData[] parseTestCases =
         {
             new TestCaseData("1/17").Returns(new Rational(1, 17)),

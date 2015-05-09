@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/aj-r/MathExtension/blob/master/LICENSE</licenseUrl>
+    <projectUrl>ttps://github.com/aj-r/MathExtension</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright 2015 AJ Richardson</copyright>
+    <tags>rational fraction math</tags>
+  </metadata>
+  <files>
+    <file src="bin\Release\net40\MathExtension.dll" target="lib\net40\MathExtension.dll" />
+    <file src="bin\Release\net45\MathExtension.dll" target="lib\net45\MathExtension.dll" />
+  </files>
+</package>
