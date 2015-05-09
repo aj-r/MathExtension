@@ -68,6 +68,7 @@ namespace MathExtension.Test
             new TestCaseData(new Rational(-1, 0), new Rational(5, 11)).Returns(-1),
             new TestCaseData(new Rational(-5, 0), new Rational(1, 0)).Returns(-1),
             new TestCaseData(new Rational(0, 4), new Rational(0, -9)).Returns(0),
+            new TestCaseData(Rational.MaxValue, new Rational(1, int.MaxValue)).Returns(1),
         };
 
         [TestCaseSource("compareToTestCases")]
@@ -79,6 +80,7 @@ namespace MathExtension.Test
         static TestCaseData[] addTestCases =
         {
             new TestCaseData(new Rational(2, 5), new Rational(4, 5)).Returns(new Rational(6, 5)),
+            new TestCaseData(new Rational(2, 5), new Rational(3, 5)).Returns(new Rational(1, 1)),
             new TestCaseData(new Rational(2, 5), new Rational(0, 6)).Returns(new Rational(2, 5)),
             new TestCaseData(new Rational(2, 5), new Rational(4, 7)).Returns(new Rational(34, 35)),
             new TestCaseData(new Rational(1, 4), new Rational(3, 10)).Returns(new Rational(11, 20)),
@@ -98,6 +100,7 @@ namespace MathExtension.Test
         static TestCaseData[] subtractTestCases =
         {
             new TestCaseData(new Rational(2, 5), new Rational(4, 5)).Returns(new Rational(-2, 5)),
+            new TestCaseData(new Rational(2, 5), new Rational(2, 5)).Returns(new Rational(0, 1)),
             new TestCaseData(new Rational(2, 5), new Rational(0, 6)).Returns(new Rational(2, 5)),
             new TestCaseData(new Rational(2, 5), new Rational(4, 7)).Returns(new Rational(-6, 35)),
             new TestCaseData(new Rational(1, 4), new Rational(3, 10)).Returns(new Rational(-1, 20)),
@@ -105,8 +108,14 @@ namespace MathExtension.Test
             new TestCaseData(new Rational(1, 6), new Rational(1, 0)).Returns(new Rational(-1, 0)),
             new TestCaseData(new Rational(1, 6), new Rational(-2, 0)).Returns(new Rational(1, 0)),
             new TestCaseData(new Rational(0, 0), new Rational(1, 0)).Returns(new Rational(0, 0)),
-            new TestCaseData(new Rational(-2, 0), new Rational(1, 0)).Returns(new Rational(0, 0)),
+            new TestCaseData(new Rational(-2, 0), new Rational(-1, 0)).Returns(new Rational(0, 0)),
         };
+
+        [TestCaseSource("subtractTestCases")]
+        public Rational SubtractTest(Rational a, Rational b)
+        {
+            return a - b;
+        }
 
         [Test]
         public void MultiplyTest()
@@ -154,6 +163,7 @@ namespace MathExtension.Test
             new TestCaseData(new Rational(3, 10), new Rational(0, 1)).Returns(new Rational(0, 1)),
             new TestCaseData(new Rational(1, 6), new Rational(0, 0)).Returns(new Rational(0, 0)),
             new TestCaseData(new Rational(-5, 6), new Rational(1, 3)).Returns(new Rational(-1, 6)),
+            new TestCaseData(new Rational(int.MaxValue, 1), new Rational(3, 4)).Returns(new Rational(1, 4)),
         };
 
         [TestCaseSource("moduloTestCases")]

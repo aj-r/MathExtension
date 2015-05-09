@@ -403,9 +403,8 @@ namespace MathExtension
 		public static Rational Simplify(int numerator, int denominator)
 		{
 			if (denominator == 0)
-			{
 				return new Rational(Math.Sign(numerator), 0);
-			}
+
             var gcd = MathEx.Gcd(numerator, denominator);
             // The denominator in the simplified version should always be positive,
             // so if it is negative, multiply both numbers by -1.
@@ -413,6 +412,20 @@ namespace MathExtension
 				gcd *= -1;
 			return new Rational(numerator / gcd, denominator / gcd);
 		}
+
+        /// <summary>
+        /// Gets the simplified version of the rational number.
+        /// </summary>
+        public static Rational Simplify(long numerator, long denominator)
+        {
+            if (denominator == 0)
+                return new Rational(Math.Sign(numerator), 0);
+
+            var gcd = MathEx.Gcd(numerator, denominator);
+            if (denominator < 0)
+                gcd *= -1;
+            return new Rational((int)(numerator / gcd), (int)(denominator / gcd));
+        }
 
         /// <summary>
         /// Gets the simplified version of the rational number.
@@ -557,10 +570,8 @@ namespace MathExtension
 		{
             if (x.Denominator == 0)
             {
-                if (x.Numerator == 0)
+                if (y.Denominator == 0 && Math.Sign(x.Numerator) != Math.Sign(y.Numerator))
                     return Indeterminate;
-                if (y.Denominator == 0)
-                    return new Rational(Math.Sign(Math.Sign(x.Numerator) + Math.Sign(y.Numerator)), 0);
                 return new Rational(Math.Sign(x.Numerator), 0);
             }
             if (y.Denominator == 0)
@@ -574,21 +585,29 @@ namespace MathExtension
 			int xFactor = denominator / x.Denominator;
 			int yFactor = denominator / y.Denominator;
 			int numerator = x.Numerator * xFactor + y.Numerator * yFactor;
-			return new Rational(numerator, denominator);
+            return Rational.Simplify(numerator, denominator);
 		}
 
 		public static Rational operator -(Rational x, Rational y)
-		{
-			if (x.Denominator == 0)
-				return new Rational(Math.Sign(x.Numerator), 0);
-			if (y.Denominator == 0)
-				return new Rational(-Math.Sign(y.Numerator), 0);
+        {
+            if (x.Denominator == 0)
+            {
+                if (y.Denominator == 0 && Math.Sign(x.Numerator) != -Math.Sign(y.Numerator))
+                    return Indeterminate;
+                return new Rational(Math.Sign(x.Numerator), 0);
+            }
+            if (y.Denominator == 0)
+            {
+                if (y.Numerator == 0)
+                    return Indeterminate;
+                return new Rational(-Math.Sign(y.Numerator), 0);
+            }
 
 			int denominator = MathEx.Lcm(x.Denominator, y.Denominator);
 			int xFactor = denominator / x.Denominator;
 			int yFactor = denominator / y.Denominator;
 			int numerator = x.Numerator * xFactor - y.Numerator * yFactor;
-			return new Rational(numerator, denominator);
+			return Rational.Simplify(numerator, denominator);
 		}
 
 		public static Rational operator *(Rational x, Rational y)
@@ -610,10 +629,10 @@ namespace MathExtension
 			if (x.Numerator == 0 || y.Numerator == 0)
 				return Zero;
 
-			int xNum = x.Numerator * y.Denominator;
-			int yNum = y.Numerator * x.Denominator;
+            var xNum = Math.BigMul(x.Numerator, y.Denominator);
+            var yNum = Math.BigMul(y.Numerator, x.Denominator);
 			int denominator = x.Denominator * y.Denominator;
-            return Rational.Simplify(xNum % yNum, denominator);
+            return Rational.Simplify((int)(xNum % yNum), denominator);
 		}
 
         public static Rational operator ++(Rational x)

@@ -490,15 +490,7 @@ namespace MathExtension
         /// <returns>The greatest common divisor of the two numbers.</returns>
         public static BigInteger Gcd(BigInteger x, BigInteger y)
         {
-            x = BigInteger.Abs(x);
-            y = BigInteger.Abs(y);
-            while (y != 0)
-            {
-                var remainder = x % y;
-                x = y;
-                y = remainder;
-            }
-            return x;
+            return BigInteger.GreatestCommonDivisor(x, y);
         }
 
 		/// <summary>
@@ -510,7 +502,7 @@ namespace MathExtension
 		public static int Lcm(int x, int y)
 		{
 			var gcd = Gcd(x, y);
-			return x * y / gcd;
+			return x / gcd * y;
 		}
 
         /// <summary>
@@ -522,7 +514,7 @@ namespace MathExtension
         public static long Lcm(long x, long y)
         {
             var gcd = Gcd(x, y);
-            return x * y / gcd;
+            return x / gcd * y;
         }
 
         /// <summary>
@@ -534,7 +526,7 @@ namespace MathExtension
         public static BigInteger Lcm(BigInteger x, BigInteger y)
         {
             var gcd = Gcd(x, y);
-            return x * y / gcd;
+            return x / gcd * y;
         }
 
 		/// <summary>
