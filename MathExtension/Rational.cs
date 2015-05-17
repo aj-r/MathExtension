@@ -5,6 +5,9 @@ using System.Text;
 
 namespace MathExtension
 {
+    /// <summary>
+    /// Represents a rational number.
+    /// </summary>
     [Serializable]
     public struct Rational : IComparable, IComparable<Rational>, IConvertible, IEquatable<Rational>, IFormattable
     {
@@ -62,7 +65,7 @@ namespace MathExtension
         /// <example>
         /// To check for this case, you can add this value to one of the rationals and compare to the other rational.
         /// <code>
-        ///   if (r1 + Rational.Epsilon &gt; r2 && r1 - Rational.Epsilon &lt; r2)
+        ///   if (r1 + Rational.Epsilon &gt; r2 &amp;&amp; r1 - Rational.Epsilon &lt; r2)
         ///   {
         ///     // Difference between r1 and r2 is less than Rational.Epsilon.
         ///   }
@@ -79,7 +82,7 @@ namespace MathExtension
         /// Converts the string representation of a number to its <see cref="Rational"/> representation.
         /// </summary>
         /// <param name="s">A string that represents a number.</param>
-        /// <returns>A <see cref="Rational"/>.</returns>
+        /// <returns>The parsed <see cref="Rational"/> value.</returns>
         public static Rational Parse(string s)
         {
             return Parse(s, null);
@@ -90,7 +93,7 @@ namespace MathExtension
         /// </summary>
         /// <param name="s">A string that represents a number.</param>
         /// <param name="style">Indicates the styles that can be present when parsing a number.</param>
-        /// <returns>A <see cref="Rational"/>.</returns>
+        /// <returns>The parsed <see cref="Rational"/> value.</returns>
         public static Rational Parse(string s, NumberStyles style)
         {
             return Parse(s, style, null);
@@ -101,7 +104,7 @@ namespace MathExtension
         /// </summary>
         /// <param name="s">A string that represents a number.</param>
         /// <param name="provider">An object that supplies culture-specific information about the format of <paramref name="s"/>.</param>
-        /// <returns>A <see cref="Rational"/>.</returns>
+        /// <returns>The parsed <see cref="Rational"/> value.</returns>
         public static Rational Parse(string s, IFormatProvider provider)
         {
             return Parse(s, NumberStyles.Any, null);
@@ -113,7 +116,7 @@ namespace MathExtension
         /// <param name="s">A string that represents a number.</param>
         /// <param name="style">Indicates the styles that can be present when parsing a number.</param>
         /// <param name="provider">An object that supplies culture-specific information about the format of <paramref name="s"/>.</param>
-        /// <returns>A <see cref="Rational"/>.</returns>
+        /// <returns>The parsed <see cref="Rational"/> value.</returns>
         public static Rational Parse(string s, NumberStyles style, IFormatProvider provider)
         {
             Rational result;
@@ -125,6 +128,7 @@ namespace MathExtension
         /// Converts the string representation of a number to its <see cref="Rational"/> representation. A return value indicates whether the conversion succeeded or failed.
         /// </summary>
         /// <param name="s">A string that represents a number.</param>
+        /// <param name="result">When this method returns, contains the parsed <see cref="Rational"/> value.</param>
         /// <returns>True if the conversion succeeded; otherwise false.</returns>
         public static bool TryParse(string s, out Rational result)
         {
@@ -136,6 +140,7 @@ namespace MathExtension
         /// </summary>
         /// <param name="s">A string that represents a number.</param>
         /// <param name="style">Indicates the styles that can be present when parsing a number.</param>
+        /// <param name="result">When this method returns, contains the parsed <see cref="Rational"/> value.</param>
         /// <returns>True if the conversion succeeded; otherwise false.</returns>
         public static bool TryParse(string s, NumberStyles style, out Rational result)
         {
@@ -147,6 +152,7 @@ namespace MathExtension
         /// </summary>
         /// <param name="s">A string that represents a number.</param>
         /// <param name="provider">An object that supplies culture-specific information about the format of <paramref name="s"/>.</param>
+        /// <param name="result">When this method returns, contains the parsed <see cref="Rational"/> value.</param>
         /// <returns>True if the conversion succeeded; otherwise false.</returns>
         public static bool TryParse(string s, IFormatProvider provider, out Rational result)
         {
@@ -159,6 +165,7 @@ namespace MathExtension
         /// <param name="s">A string that represents a number.</param>
         /// <param name="style">Indicates the styles that can be present when parsing a number.</param>
         /// <param name="provider">An object that supplies culture-specific information about the format of <paramref name="s"/>.</param>
+        /// <param name="result">When this method returns, contains the parsed <see cref="Rational"/> value.</param>
         /// <returns>True if the conversion succeeded; otherwise false.</returns>
         public static bool TryParse(string s, NumberStyles style, IFormatProvider provider, out Rational result)
         {
@@ -351,8 +358,8 @@ namespace MathExtension
         /// <summary>
         /// Returns a specified number raised to a specified power.
         /// </summary>
-        /// <param name="val1">A Rational number.</param>
-        /// <param name="val2">A Rational number.</param>
+        /// <param name="baseValue">A Rational number.</param>
+        /// <param name="exponent">A Rational number.</param>
         /// <returns>The larger of two Rationals.</returns>
         public static Rational Pow(Rational baseValue, int exponent)
         {
@@ -451,16 +458,29 @@ namespace MathExtension
 
         #region Constructors
 
+        /// <summary>
+        /// Creates a new <see cref="Rational"/> instance with a denominator of 1.
+        /// </summary>
+        /// <param name="numerator">The numerator of the <see cref="Rational"/>.</param>
         public Rational(int numerator)
             : this(numerator, 1)
         { }
 
+        /// <summary>
+        /// Creates a new <see cref="Rational"/> instance.
+        /// </summary>
+        /// <param name="numerator">The numerator of the <see cref="Rational"/>.</param>
+        /// <param name="denominator">The denominator of the <see cref="Rational"/>.</param>
         public Rational(int numerator, int denominator)
         {
             _numerator = numerator;
             _denominator = denominator;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Rational"/> instance equal to a floating-point value.
+        /// </summary>
+        /// <param name="value">A floating-point value</param>
         public Rational(double value)
         {
             this = FromDouble(value);
@@ -470,16 +490,25 @@ namespace MathExtension
 
         #region Properties
 
+        /// <summary>
+        /// Gets the numerator of the current <see cref="Rational"/> value.
+        /// </summary>
         public int Numerator
         {
             get { return _numerator; }
         }
 
+        /// <summary>
+        /// Gets the numerator of the current <see cref="Rational"/> value.
+        /// </summary>
         public int Denominator
         {
             get { return _denominator; }
         }
 
+        /// <summary>
+        /// Gets the floating-point equivalent of the current <see cref="Rational"/> value.
+        /// </summary>
         public double Value
         {
             get
@@ -488,6 +517,10 @@ namespace MathExtension
             }
         }
 
+        /// <summary>
+        /// Gets the inverse of the current <see cref="Rational"/> value (that is, one divided by the current value).
+        /// </summary>
+        /// <returns></returns>
         public Rational Inverse()
         {
             if (Numerator >= 0)
@@ -500,6 +533,10 @@ namespace MathExtension
             }
         }
 
+        /// <summary>
+        /// Gets the negated version of the current <see cref="Rational"/> value (that is, the current value multiplied by negative one).
+        /// </summary>
+        /// <returns></returns>
         public Rational Negate()
         {
             return new Rational(-Numerator, Denominator);
@@ -655,41 +692,87 @@ namespace MathExtension
 
         #region Operators
 
+        /// <summary>
+        /// Gets whether two <see cref="Rational"/> values are numerically equivalent.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>True if the values are equivalent; otherwise false.</returns>
         public static bool operator ==(Rational x, Rational y)
         {
             return x.CompareTo(y) == 0;
         }
 
+        /// <summary>
+        /// Gets whether two <see cref="Rational"/> values are numerically not equivalent.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>False if the values are equivalent; otherwise true.</returns>
         public static bool operator !=(Rational x, Rational y)
         {
             return !(x == y);
         }
 
+        /// <summary>
+        /// Gets whether a <see cref="Rational"/> values is greater than another.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>True if <paramref name="x"/> is greater than <paramref name="y"/>; otherwise false.</returns>
         public static bool operator >(Rational x, Rational y)
         {
             return x.CompareTo(y) > 0;
         }
 
+        /// <summary>
+        /// Gets whether a <see cref="Rational"/> values is greater than or equal to another.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>True if <paramref name="x"/> is greater than or equal to <paramref name="y"/>; otherwise false.</returns>
         public static bool operator >=(Rational x, Rational y)
         {
             return !(x < y);
         }
 
+        /// <summary>
+        /// Gets whether a <see cref="Rational"/> values is less than another.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>True if <paramref name="x"/> is less than <paramref name="y"/>; otherwise false.</returns>
         public static bool operator <(Rational x, Rational y)
         {
             return x.CompareTo(y) < 0;
         }
 
+        /// <summary>
+        /// Gets whether a <see cref="Rational"/> values is less than or equal to another.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>True if <paramref name="x"/> is less than or equal to <paramref name="y"/>; otherwise false.</returns>
         public static bool operator <=(Rational x, Rational y)
         {
             return !(x > y);
         }
 
+        /// <summary>
+        /// Gets the <see cref="Rational"/> value.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static Rational operator +(Rational x)
         {
             return x;
         }
 
+        /// <summary>
+        /// Gets the negated version of a <see cref="Rational"/> value.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static Rational operator -(Rational x)
         {
             if (x.Denominator < 0)
@@ -698,6 +781,12 @@ namespace MathExtension
                 return new Rational(-x.Numerator, x.Denominator);
         }
 
+        /// <summary>
+        /// Adds two <see cref="Rational"/> values.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>The simplified sum of the <see cref="Rational"/> values.</returns>
         public static Rational operator +(Rational x, Rational y)
         {
             if (x.Denominator == 0)
@@ -720,6 +809,12 @@ namespace MathExtension
             return Rational.Simplify(numerator, denominator);
         }
 
+        /// <summary>
+        /// Subtracts two <see cref="Rational"/> values.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>The simplified difference of the <see cref="Rational"/> values.</returns>
         public static Rational operator -(Rational x, Rational y)
         {
             if (x.Denominator == 0)
@@ -742,16 +837,34 @@ namespace MathExtension
             return Rational.Simplify(numerator, denominator);
         }
 
+        /// <summary>
+        /// Multiplies two <see cref="Rational"/> values.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>The simplified product of the <see cref="Rational"/> values.</returns>
         public static Rational operator *(Rational x, Rational y)
         {
             return Rational.Simplify(x.Numerator * y.Numerator, x.Denominator * y.Denominator);
         }
 
+        /// <summary>
+        /// Divides two <see cref="Rational"/> values.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>The simplified dividend of the <see cref="Rational"/> values.</returns>
         public static Rational operator /(Rational x, Rational y)
         {
             return Rational.Simplify(x.Numerator * y.Denominator, x.Denominator * y.Numerator);
         }
 
+        /// <summary>
+        /// Gets the remainder that results from dividing two <see cref="Rational"/> values.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <param name="y">A <see cref="Rational"/>.</param>
+        /// <returns>The remainder that results from dividing the <see cref="Rational"/> values.</returns>
         public static Rational operator %(Rational x, Rational y)
         {
             if (y.Denominator == 0)
@@ -767,11 +880,21 @@ namespace MathExtension
             return Rational.Simplify((int)(xNum % yNum), denominator);
         }
 
+        /// <summary>
+        /// Increments a <see cref="Rational"/> value.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <returns>The incremented <see cref="Rational"/>.</returns>
         public static Rational operator ++(Rational x)
         {
             return x + Rational.One;
         }
 
+        /// <summary>
+        /// Decrements a <see cref="Rational"/> value.
+        /// </summary>
+        /// <param name="x">A <see cref="Rational"/>.</param>
+        /// <returns>The idecremented <see cref="Rational"/>.</returns>
         public static Rational operator --(Rational x)
         {
             return x - Rational.One;
@@ -781,91 +904,181 @@ namespace MathExtension
 
         #region Casts
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt32"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="UInt32"/>.</returns>
         public static implicit operator Rational(int x)
         {
             return new Rational(x);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="Int32"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="Int32"/>.</returns>
         public static explicit operator int(Rational x)
         {
             return x.Numerator / x.Denominator;
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt32"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="UInt32"/>.</returns>
         public static implicit operator Rational(uint x)
         {
             return new Rational(x);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt32"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="UInt32"/>.</returns>
         public static explicit operator uint(Rational x)
         {
             return (uint)(x.Numerator / x.Denominator);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="Int16"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="Int16"/>.</returns>
         public static implicit operator Rational(short x)
         {
             return new Rational(x);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="Int16"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="Int16"/>.</returns>
         public static explicit operator short(Rational x)
         {
             return (short)(x.Numerator / x.Denominator);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt16"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="UInt16"/>.</returns>
         public static implicit operator Rational(ushort x)
         {
             return new Rational(x);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt16"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="UInt16"/>.</returns>
         public static explicit operator ushort(Rational x)
         {
             return (ushort)(x.Numerator / x.Denominator);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="Int64"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="Int64"/>.</returns>
         public static implicit operator Rational(long x)
         {
             return new Rational(x);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="Int64"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="Int64"/>.</returns>
         public static explicit operator long(Rational x)
         {
             return x.Numerator / x.Denominator;
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt64"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="UInt64"/>.</returns>
         public static implicit operator Rational(ulong x)
         {
             return new Rational(x);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt64"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="UInt64"/>.</returns>
         public static explicit operator ulong(Rational x)
         {
             return (ulong)(x.Numerator / x.Denominator);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Decimal"/> to a <see cref="Single"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Decimal"/> to convert.</param>
+        /// <returns>A <see cref="Single"/>.</returns>
         public static explicit operator Rational(float x)
         {
             return new Rational(x);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="Single"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="Single"/>.</returns>
         public static explicit operator float(Rational x)
         {
             return (float)x.Value;
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Decimal"/> to a <see cref="Double"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Decimal"/> to convert.</param>
+        /// <returns>A <see cref="Double"/>.</returns>
         public static explicit operator Rational(double x)
         {
             return new Rational(x);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="Double"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="Double"/>.</returns>
         public static explicit operator double(Rational x)
         {
             return x.Value;
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Decimal"/> to a <see cref="Rational"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Decimal"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static explicit operator Rational(decimal x)
         {
             return Rational.FromDouble((double)x);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="Decimal"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="Decimal"/>.</returns>
         public static explicit operator decimal(Rational x)
         {
             return (decimal)x.Numerator / (decimal)x.Denominator;
@@ -875,25 +1088,35 @@ namespace MathExtension
 
         #region IComparable Members
 
+        /// <summary>
+        /// Compares this instance to another <see cref="Rational"/> and returns an indication of their relative values.
+        /// </summary>
+        /// <param name="obj">The value to compare to. This should be a numeric value.</param>
+        /// <returns>A signed number indicating the relative values of this instance and <paramref name="obj"/>.</returns>
         public int CompareTo(object obj)
         {
-            Rational r;
-            if (!(obj is Rational))
+            if (obj is Rational)
             {
-                r = (Rational)obj;
+                var r = (Rational)obj;
+                return CompareTo(r);
             }
             else
             {
-                var d = Convert.ToDouble(obj);
-                r = new Rational(d);
+                var d1 = ToDouble();
+                var d2 = Convert.ToDouble(obj);
+                return d1.CompareTo(d2);
             }
-            return CompareTo(r);
         }
 
         #endregion
 
         #region IComparable<Rational> Members
 
+        /// <summary>
+        /// Compares this instance to another <see cref="Rational"/> and returns an indication of their relative values.
+        /// </summary>
+        /// <param name="other">The <see cref="Rational"/> to compare to.</param>
+        /// <returns>A signed number indicating the relative values of this instance and <paramref name="other"/>.</returns>
         public int CompareTo(Rational other)
         {
             if (Denominator == 0)
@@ -931,6 +1154,11 @@ namespace MathExtension
 
         #region IEquatable<Rational> Members
 
+        /// <summary>
+        /// Indicates whether this instance and a specified <see cref="Rational"/> are equal.
+        /// </summary>
+        /// <param name="other">Another <see cref="Rational"/> to compare to.</param>
+        /// <returns><value>true</value> if the current object and <paramref name="other"/> represent the same value; otherwise, <value>false</value>.</returns>
         public bool Equals(Rational other)
         {
             return this == other;
@@ -970,6 +1198,20 @@ namespace MathExtension
             return (decimal)this;
         }
 
+        /// <summary>
+        /// Converts the current <see cref="Rational"/> to a double.
+        /// </summary>
+        /// <returns>A <see cref="Double"/>.</returns>
+        public double ToDouble()
+        {
+            return (double)this;
+        }
+
+        /// <summary>
+        /// Converts the current <see cref="Rational"/> to a double.
+        /// </summary>
+        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+        /// <returns>A <see cref="Double"/>.</returns>
         public double ToDouble(IFormatProvider provider)
         {
             return (double)this;
@@ -1000,6 +1242,11 @@ namespace MathExtension
             return (float)this;
         }
 
+        /// <summary>
+        /// Converts this instance to its equivalent string representation.
+        /// </summary>
+        /// <param name="provider">An object that has culture-specific formatting information.</param>
+        /// <returns>The string representation of the <see cref="Rational"/>.</returns>
         public string ToString(IFormatProvider provider)
         {
             return Numerator.ToString(provider) + (Denominator != 1 ? "/" + Denominator.ToString(provider) : string.Empty);

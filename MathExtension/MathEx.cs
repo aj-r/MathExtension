@@ -4,6 +4,9 @@ using System.Numerics;
 
 namespace MathExtension
 {
+    /// <summary>
+    /// Contains constants and methods for mathematical operations.
+    /// </summary>
     public static class MathEx
     {
         /// <summary>
@@ -102,6 +105,7 @@ namespace MathExtension
         /// Gets whether or not a floating-point number is zero, within a certain tolerance to allow for floating point rounding errors.
         /// </summary>
         /// <param name="x">A floating-point number.</param>
+        /// <param name="tolerance">The tolerance to use when comparing the values.</param>
         /// <returns>True if the number is zero, false if not.</returns>
         public static bool IsZero(float x, float tolerance = DEFAULT_FLOAT_TOLERANCE)
         {
@@ -112,6 +116,7 @@ namespace MathExtension
         /// Gets whether or not a floating-point number is zero, within a certain tolerance to allow for floating point rounding errors.
         /// </summary>
         /// <param name="x">A floating-point number.</param>
+        /// <param name="tolerance">The tolerance to use when comparing the values.</param>
         /// <returns>True if the number is zero, false if not.</returns>
         public static bool IsZero(double x, double tolerance = DEFAULT_TOLERANCE)
         {
@@ -122,6 +127,7 @@ namespace MathExtension
         /// Gets whether or not a complex number is zero, within a certain tolerance to allow for floating point rounding errors.
         /// </summary>
         /// <param name="x">A complex number.</param>
+        /// <param name="tolerance">The tolerance to use when comparing the values.</param>
         /// <returns>True if the number is zero, false if not.</returns>
         public static bool IsZero(Complex x, double tolerance = DEFAULT_TOLERANCE)
         {
@@ -132,7 +138,8 @@ namespace MathExtension
         /// Gets whether or not two floating-point numbers are equal to each other, within a certain tolerance to allow for floating point rounding errors.
         /// </summary>
         /// <param name="x">The first floating-point number.</param>
-        /// <param name="x">The second floating-point number.</param>
+        /// <param name="y">The second floating-point number.</param>
+        /// <param name="tolerance">The tolerance to use when comparing the values.</param>
         /// <returns>True if the numbers are equal, false if not.</returns>
         public static bool AreEqual(float x, float y, float tolerance = DEFAULT_FLOAT_TOLERANCE)
         {
@@ -143,7 +150,8 @@ namespace MathExtension
         /// Gets whether or not two floating-point numbers are equal to each other, within a certain tolerance to allow for floating point rounding errors.
         /// </summary>
         /// <param name="x">The first floating-point number.</param>
-        /// <param name="x">The second floating-point number.</param>
+        /// <param name="y">The second floating-point number.</param>
+        /// <param name="tolerance">The tolerance to use when comparing the values.</param>
         /// <returns>True if the numbers are equal, false if not.</returns>
         public static bool AreEqual(double x, double y, double tolerance = DEFAULT_TOLERANCE)
         {
@@ -154,7 +162,8 @@ namespace MathExtension
         /// Gets whether or not two complex numbers are equal to each other, within a certain tolerance to allow for floating point rounding errors.
         /// </summary>
         /// <param name="x">The first complex number.</param>
-        /// <param name="x">The second complex number.</param>
+        /// <param name="y">The second complex number.</param>
+        /// <param name="tolerance">The tolerance to use when comparing the values.</param>
         /// <returns>True if the number is zero, false if not.</returns>
         public static bool AreEqual(Complex x, Complex y, double tolerance = DEFAULT_TOLERANCE)
         {
@@ -165,6 +174,7 @@ namespace MathExtension
         /// Determines whether or not a number is an integer (has no fraction part).
         /// </summary>
         /// <param name="x">The number to test.</param>
+        /// <param name="tolerance">The tolerance to use when comparing the values.</param>
         /// <returns>True if the number is an integer, false if it has a fraction part.</returns>
         public static bool IsInteger(float x, float tolerance = DEFAULT_FLOAT_TOLERANCE)
         {
@@ -176,6 +186,7 @@ namespace MathExtension
         /// Determines whether or not a number is an integer (has no fraction part).
         /// </summary>
         /// <param name="x">The number to test.</param>
+        /// <param name="tolerance">The tolerance to use when comparing the values.</param>
         /// <returns>True if the number is an integer, false if it has a fraction part.</returns>
         public static bool IsInteger(double x, double tolerance = DEFAULT_TOLERANCE)
         {
@@ -187,6 +198,7 @@ namespace MathExtension
         /// Determines whether or not a number is an integer (has no fraction part).
         /// </summary>
         /// <param name="x">The number to test.</param>
+        /// <param name="tolerance">The tolerance to use when comparing the values.</param>
         /// <returns>True if the number is an integer, false if it has a fraction part.</returns>
         public static bool IsInteger(Complex x, double tolerance = DEFAULT_TOLERANCE)
         {

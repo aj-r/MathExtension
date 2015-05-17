@@ -5,6 +5,9 @@ using System.Text;
 
 namespace MathExtension
 {
+    /// <summary>
+    /// Contains extensions for IEnumerable&lt;T&gt; not included in System.Linq.Enumerable.
+    /// </summary>
     public static class EnumerableExtensions
     {
         #region General Extensions
@@ -100,6 +103,7 @@ namespace MathExtension
         /// <typeparam name="TSource">The type of elements in source.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">A sequence of <see cref="Decimal"/> values to get the maximum value of.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The maximum value.</returns>
         public static TResult Max<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
