@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="EnumerableExtensionsTests.cs" />
     <Compile Include="MathExTests.cs" />
+    <Compile Include="RationalConverterTests.cs" />
     <Compile Include="RationalTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

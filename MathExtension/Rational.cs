@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 
@@ -9,7 +10,8 @@ namespace MathExtension
     /// Represents a rational number.
     /// </summary>
     [Serializable]
-    public struct Rational : IComparable, IComparable<Rational>, IConvertible, IEquatable<Rational>, IFormattable
+    [TypeConverter(typeof(RationalConverter))]
+    public struct Rational : IComparable, IComparable<Rational>, IEquatable<Rational>, IFormattable
     {
         #region Members
 
@@ -420,7 +422,7 @@ namespace MathExtension
         /// </summary>
         /// <param name="r">A rational number.</param>
         /// <returns>True if <paramref name="r"/> evaluates to positive or negative infinity; otherwise false.</returns>
-        public bool IsInfinity(Rational r)
+        public static bool IsInfinity(Rational r)
         {
             return r._denominator == 0 && r._numerator != 0;
         }
@@ -430,7 +432,7 @@ namespace MathExtension
         /// </summary>
         /// <param name="r">A rational number.</param>
         /// <returns>True if <paramref name="r"/> evaluates to positive infinity; otherwise false.</returns>
-        public bool IsPositiveInfinity(Rational r)
+        public static bool IsPositiveInfinity(Rational r)
         {
             return r._denominator == 0 && r._numerator > 0;
         }
@@ -440,7 +442,7 @@ namespace MathExtension
         /// </summary>
         /// <param name="r">A rational number.</param>
         /// <returns>True if <paramref name="r"/> evaluates to negative infinity; otherwise false.</returns>
-        public bool IsNegativeInfinity(Rational r)
+        public static bool IsNegativeInfinity(Rational r)
         {
             return r._denominator == 0 && r._numerator < 0;
         }
@@ -450,7 +452,7 @@ namespace MathExtension
         /// </summary>
         /// <param name="r">A rational number.</param>
         /// <returns>True if <paramref name="r"/> represents an indeterminate value; otherwise false.</returns>
-        public bool IsIndeterminate(Rational r)
+        public static bool IsIndeterminate(Rational r)
         {
             return r._denominator == 0 && r._numerator == 0;
         }
@@ -460,7 +462,7 @@ namespace MathExtension
         /// </summary>
         /// <param name="r">A rational number.</param>
         /// <returns>True if <paramref name="r"/> evaluates to zero; otherwise false.</returns>
-        public bool IsZero(Rational r)
+        public static bool IsZero(Rational r)
         {
             return r._numerator == 0 && r._denominator != 0;
         }
@@ -595,6 +597,16 @@ namespace MathExtension
             return Simplify(_numerator, _denominator);
         }
 
+
+        /// <summary>
+        /// Converts the current <see cref="Rational"/> to a double.
+        /// </summary>
+        /// <returns>A <see cref="Double"/>.</returns>
+        public double ToDouble()
+        {
+            return Value;
+        }
+
         /// <summary>
         /// Converts the Rational to a string in the form of an improper fraction.
         /// </summary>
@@ -602,6 +614,16 @@ namespace MathExtension
         public override string ToString()
         {
             return Numerator.ToString() + (Denominator != 1 ? "/" + Denominator.ToString() : string.Empty);
+        }
+
+        /// <summary>
+        /// Converts this instance to its equivalent string representation.
+        /// </summary>
+        /// <param name="provider">An object that has culture-specific formatting information.</param>
+        /// <returns>The string representation of the <see cref="Rational"/>.</returns>
+        public string ToString(IFormatProvider provider)
+        {
+            return Numerator.ToString(provider) + (Denominator != 1 ? "/" + Denominator.ToString(provider) : string.Empty);
         }
 
         /// <summary>
@@ -1036,13 +1058,54 @@ namespace MathExtension
         }
 
         /// <summary>
+        /// Converts the specified <see cref="SByte"/> to a <see cref="Rational"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="SByte"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
+        public static implicit operator Rational(sbyte x)
+        {
+            return new Rational(x);
+        }
+
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="SByte"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="SByte"/>.</returns>
+        public static explicit operator sbyte(Rational x)
+        {
+            return (sbyte)(x.Numerator / x.Denominator);
+        }
+
+        /// <summary>
+        /// Converts the specified <see cref="Byte"/> to a <see cref="Rational"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Byte"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
+        public static implicit operator Rational(byte x)
+        {
+            return new Rational(x);
+        }
+
+        /// <summary>
+        /// Converts the specified <see cref="Rational"/> to a <see cref="Byte"/>.
+        /// </summary>
+        /// <param name="x">The <see cref="Rational"/> to convert.</param>
+        /// <returns>A <see cref="Byte"/>.</returns>
+        public static explicit operator byte(Rational x)
+        {
+            return (byte)(x.Numerator / x.Denominator);
+        }
+
+        /// <summary>
         /// Converts the specified <see cref="Single"/> to a <see cref="Rational"/>.
         /// </summary>
         /// <param name="x">The <see cref="Single"/> to convert.</param>
         /// <returns>A <see cref="Rational"/>.</returns>
         public static explicit operator Rational(float x)
         {
-            return new Rational(x);
+            // Use a much bigger tolerance for floats because there will be bigger rounding errors.
+            return Rational.FromDouble(x, 1e-3);
         }
 
         /// <summary>
@@ -1113,7 +1176,7 @@ namespace MathExtension
             }
             else
             {
-                var d1 = ToDouble();
+                var d1 = Value;
                 var d2 = Convert.ToDouble(obj);
                 return d1.CompareTo(d2);
             }
@@ -1173,114 +1236,6 @@ namespace MathExtension
         public bool Equals(Rational other)
         {
             return this == other;
-        }
-
-        #endregion
-
-        #region IConvertible Members
-
-        TypeCode IConvertible.GetTypeCode()
-        {
-            return TypeCode.Object;
-        }
-
-        bool IConvertible.ToBoolean(IFormatProvider provider)
-        {
-            return !IsZero(this);
-        }
-
-        byte IConvertible.ToByte(IFormatProvider provider)
-        {
-            return (byte)(_numerator / _denominator);
-        }
-
-        char IConvertible.ToChar(IFormatProvider provider)
-        {
-            throw new InvalidCastException();
-        }
-
-        DateTime IConvertible.ToDateTime(IFormatProvider provider)
-        {
-            throw new InvalidCastException();
-        }
-
-        decimal IConvertible.ToDecimal(IFormatProvider provider)
-        {
-            return (decimal)this;
-        }
-
-        /// <summary>
-        /// Converts the current <see cref="Rational"/> to a double.
-        /// </summary>
-        /// <returns>A <see cref="Double"/>.</returns>
-        public double ToDouble()
-        {
-            return Value;
-        }
-
-        /// <summary>
-        /// Converts the current <see cref="Rational"/> to a double.
-        /// </summary>
-        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
-        /// <returns>A <see cref="Double"/>.</returns>
-        public double ToDouble(IFormatProvider provider)
-        {
-            return Value;
-        }
-
-        short IConvertible.ToInt16(IFormatProvider provider)
-        {
-            return (short)Round(this);
-        }
-
-        int IConvertible.ToInt32(IFormatProvider provider)
-        {
-            return Round(this);
-        }
-
-        long IConvertible.ToInt64(IFormatProvider provider)
-        {
-            return Round(this);
-        }
-
-        sbyte IConvertible.ToSByte(IFormatProvider provider)
-        {
-            return (sbyte)Round(this);
-        }
-
-        float IConvertible.ToSingle(IFormatProvider provider)
-        {
-            return (float)this;
-        }
-
-        /// <summary>
-        /// Converts this instance to its equivalent string representation.
-        /// </summary>
-        /// <param name="provider">An object that has culture-specific formatting information.</param>
-        /// <returns>The string representation of the <see cref="Rational"/>.</returns>
-        public string ToString(IFormatProvider provider)
-        {
-            return Numerator.ToString(provider) + (Denominator != 1 ? "/" + Denominator.ToString(provider) : string.Empty);
-        }
-
-        object IConvertible.ToType(Type conversionType, IFormatProvider provider)
-        {
-            return Convert.ChangeType((double)this, conversionType, provider);
-        }
-
-        ushort IConvertible.ToUInt16(IFormatProvider provider)
-        {
-            return (ushort)Round(this);
-        }
-
-        uint IConvertible.ToUInt32(IFormatProvider provider)
-        {
-            return (uint)Round(this);
-        }
-
-        ulong IConvertible.ToUInt64(IFormatProvider provider)
-        {
-            return (ulong)Round(this);
         }
 
         #endregion
