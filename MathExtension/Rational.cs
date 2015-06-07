@@ -356,6 +356,17 @@ namespace MathExtension
         }
 
         /// <summary>
+        /// Rounds a <see cref="Rational"/> to the nearest integral value.
+        /// </summary>
+        /// <param name="x">The number to round.</param>
+        /// <returns>The rounded number.</returns>
+        /// <exception cref="DivideByZeroException">The denominator of <paramref name="x"/> is zero.</exception>
+        public static int Round(Rational x)
+        {
+            return (x.Numerator + x.Denominator / 2) / x.Denominator;
+        }
+
+        /// <summary>
         /// Returns a specified number raised to a specified power.
         /// </summary>
         /// <param name="baseValue">A Rational number.</param>
@@ -905,10 +916,10 @@ namespace MathExtension
         #region Casts
 
         /// <summary>
-        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt32"/>.
+        /// Converts the specified <see cref="Int32"/> to a <see cref="Rational"/>.
         /// </summary>
-        /// <param name="x">The <see cref="Rational"/> to convert.</param>
-        /// <returns>A <see cref="UInt32"/>.</returns>
+        /// <param name="x">The <see cref="Int32"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static implicit operator Rational(int x)
         {
             return new Rational(x);
@@ -925,10 +936,10 @@ namespace MathExtension
         }
 
         /// <summary>
-        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt32"/>.
+        /// Converts the specified <see cref="UInt32"/> to a <see cref="Rational"/>.
         /// </summary>
-        /// <param name="x">The <see cref="Rational"/> to convert.</param>
-        /// <returns>A <see cref="UInt32"/>.</returns>
+        /// <param name="x">The <see cref="UInt32"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static implicit operator Rational(uint x)
         {
             return new Rational(x);
@@ -945,10 +956,10 @@ namespace MathExtension
         }
 
         /// <summary>
-        /// Converts the specified <see cref="Rational"/> to a <see cref="Int16"/>.
+        /// Converts the specified <see cref="Int16"/> to a <see cref="Rational"/>.
         /// </summary>
-        /// <param name="x">The <see cref="Rational"/> to convert.</param>
-        /// <returns>A <see cref="Int16"/>.</returns>
+        /// <param name="x">The <see cref="Int16"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static implicit operator Rational(short x)
         {
             return new Rational(x);
@@ -965,10 +976,10 @@ namespace MathExtension
         }
 
         /// <summary>
-        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt16"/>.
+        /// Converts the specified <see cref="UInt16"/> to a <see cref="Rational"/>.
         /// </summary>
-        /// <param name="x">The <see cref="Rational"/> to convert.</param>
-        /// <returns>A <see cref="UInt16"/>.</returns>
+        /// <param name="x">The <see cref="UInt16"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static implicit operator Rational(ushort x)
         {
             return new Rational(x);
@@ -985,10 +996,10 @@ namespace MathExtension
         }
 
         /// <summary>
-        /// Converts the specified <see cref="Rational"/> to a <see cref="Int64"/>.
+        /// Converts the specified <see cref="Int64"/> to a <see cref="Rational"/>.
         /// </summary>
-        /// <param name="x">The <see cref="Rational"/> to convert.</param>
-        /// <returns>A <see cref="Int64"/>.</returns>
+        /// <param name="x">The <see cref="Int64"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static implicit operator Rational(long x)
         {
             return new Rational(x);
@@ -1005,10 +1016,10 @@ namespace MathExtension
         }
 
         /// <summary>
-        /// Converts the specified <see cref="Rational"/> to a <see cref="UInt64"/>.
+        /// Converts the specified <see cref="UInt64"/> to a <see cref="Rational"/>.
         /// </summary>
-        /// <param name="x">The <see cref="Rational"/> to convert.</param>
-        /// <returns>A <see cref="UInt64"/>.</returns>
+        /// <param name="x">The <see cref="UInt64"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static implicit operator Rational(ulong x)
         {
             return new Rational(x);
@@ -1025,10 +1036,10 @@ namespace MathExtension
         }
 
         /// <summary>
-        /// Converts the specified <see cref="Decimal"/> to a <see cref="Single"/>.
+        /// Converts the specified <see cref="Single"/> to a <see cref="Rational"/>.
         /// </summary>
-        /// <param name="x">The <see cref="Decimal"/> to convert.</param>
-        /// <returns>A <see cref="Single"/>.</returns>
+        /// <param name="x">The <see cref="Single"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static explicit operator Rational(float x)
         {
             return new Rational(x);
@@ -1045,10 +1056,10 @@ namespace MathExtension
         }
 
         /// <summary>
-        /// Converts the specified <see cref="Decimal"/> to a <see cref="Double"/>.
+        /// Converts the specified <see cref="Double"/> to a <see cref="Rational"/>.
         /// </summary>
-        /// <param name="x">The <see cref="Decimal"/> to convert.</param>
-        /// <returns>A <see cref="Double"/>.</returns>
+        /// <param name="x">The <see cref="Double"/> to convert.</param>
+        /// <returns>A <see cref="Rational"/>.</returns>
         public static explicit operator Rational(double x)
         {
             return new Rational(x);
@@ -1204,7 +1215,7 @@ namespace MathExtension
         /// <returns>A <see cref="Double"/>.</returns>
         public double ToDouble()
         {
-            return (double)this;
+            return Value;
         }
 
         /// <summary>
@@ -1214,27 +1225,27 @@ namespace MathExtension
         /// <returns>A <see cref="Double"/>.</returns>
         public double ToDouble(IFormatProvider provider)
         {
-            return (double)this;
+            return Value;
         }
 
         short IConvertible.ToInt16(IFormatProvider provider)
         {
-            return (short)this;
+            return (short)Round(this);
         }
 
         int IConvertible.ToInt32(IFormatProvider provider)
         {
-            return (int)this;
+            return Round(this);
         }
 
         long IConvertible.ToInt64(IFormatProvider provider)
         {
-            return (long)this;
+            return Round(this);
         }
 
         sbyte IConvertible.ToSByte(IFormatProvider provider)
         {
-            return (sbyte)(_numerator / _denominator);
+            return (sbyte)Round(this);
         }
 
         float IConvertible.ToSingle(IFormatProvider provider)
@@ -1259,17 +1270,17 @@ namespace MathExtension
 
         ushort IConvertible.ToUInt16(IFormatProvider provider)
         {
-            return (ushort)this;
+            return (ushort)Round(this);
         }
 
         uint IConvertible.ToUInt32(IFormatProvider provider)
         {
-            return (uint)this;
+            return (uint)Round(this);
         }
 
         ulong IConvertible.ToUInt64(IFormatProvider provider)
         {
-            return (ulong)this;
+            return (ulong)Round(this);
         }
 
         #endregion
