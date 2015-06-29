@@ -7,7 +7,7 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <licenseUrl>https://github.com/aj-r/MathExtension/blob/master/LICENSE</licenseUrl>
-    <projectUrl>ttps://github.com/aj-r/MathExtension</projectUrl>
+    <projectUrl>https://github.com/aj-r/MathExtension</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Initial release.</releaseNotes>
