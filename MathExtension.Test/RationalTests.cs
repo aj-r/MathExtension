@@ -178,20 +178,32 @@ namespace MathExtension.Test
             new TestCaseData(new Rational(1, 2), new Rational(1, 6), 3, new Rational(0, 1)),
             new TestCaseData(new Rational(1, 7), new Rational(1, 4), 0, new Rational(1, 7)),
             new TestCaseData(new Rational(1, 2), new Rational(1, 0), 0, new Rational(1, 2)),
-            new TestCaseData(new Rational(1, 0), new Rational(1, 5), 0, new Rational()).Throws(typeof(DivideByZeroException)),
-            new TestCaseData(new Rational(1, 2), new Rational(0, 5), 0, new Rational()).Throws(typeof(DivideByZeroException)),
             new TestCaseData(new Rational(0, 2), new Rational(1, 5), 0, new Rational(0, 1)),
-            new TestCaseData(new Rational(1, 2), new Rational(0, 0), 0, new Rational()).Throws(typeof(DivideByZeroException)),
             new TestCaseData(new Rational(-3, 2), new Rational(2, 3), -2, new Rational(-1, 6)),
         };
 
         [TestCaseSource("divRemTestCases")]
         public void DivRemTest(Rational a, Rational b, int expectedDividend, Rational expectedRemainder)
         {
-            Rational actualRemainder;
-            var actualDividend = Rational.DivRem(a, b, out actualRemainder);
+            var actualDividend = Rational.DivRem(a, b, out Rational actualRemainder);
             Assert.That(actualDividend, Is.EqualTo(expectedDividend));
             Assert.That(actualRemainder, Is.EqualTo(expectedRemainder));
+        }
+
+        static TestCaseData[] divRemDivideByZeroTestCases =
+        {
+            new TestCaseData(new Rational(1, 0), new Rational(1, 5)),
+            new TestCaseData(new Rational(1, 2), new Rational(0, 5)),
+            new TestCaseData(new Rational(1, 2), new Rational(0, 0)),
+        };
+
+        [TestCaseSource("divRemDivideByZeroTestCases")]
+        public void DivRemTest_ThrowDivideByZeroException(Rational a, Rational b)
+        {
+            Assert.Throws<DivideByZeroException>(() =>
+            {
+                var actualDividend = Rational.DivRem(a, b, out Rational actualRemainder);
+            });
         }
 
         static TestCaseData[] powerTestCases =
@@ -278,16 +290,29 @@ namespace MathExtension.Test
             new TestCaseData("-3 9/11").Returns(new Rational(-42, 11)),
             new TestCaseData("0.6").Returns(new Rational(3, 5)),
             new TestCaseData("-0.6").Returns(new Rational(-3, 5)),
-            new TestCaseData("1/").Throws(typeof(FormatException)),
-            new TestCaseData(" ").Throws(typeof(FormatException)),
-            new TestCaseData("1b").Throws(typeof(FormatException)),
-            new TestCaseData("1/2/3").Throws(typeof(FormatException)),
         };
 
         [TestCaseSource("parseTestCases")]
         public Rational ParseTest(string s)
         {
             return Rational.Parse(s);
+        }
+
+        static TestCaseData[] parseFormatExceptionTestCases =
+        {
+            new TestCaseData("1/"),
+            new TestCaseData(" "),
+            new TestCaseData("1b"),
+            new TestCaseData("1/2/3"),
+        };
+
+        [TestCaseSource("parseFormatExceptionTestCases")]
+        public void ParseTest_ThrowFormatException(string s)
+        {
+            Assert.Throws<FormatException>(() =>
+            {
+                Rational.Parse(s);
+            });
         }
 
         static TestCaseData[] tryParseTestCases =
@@ -311,8 +336,7 @@ namespace MathExtension.Test
         [TestCaseSource("tryParseTestCases")]
         public bool TryParseTest(string s, Rational expected)
         {
-            Rational r;
-            var result = Rational.TryParse(s, out r);
+            var result = Rational.TryParse(s, out Rational r);
             Assert.That(r, Is.EqualTo(expected));
             return result;
         }

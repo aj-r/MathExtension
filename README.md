@@ -1,11 +1,11 @@
 # Math Extension
 
+[![NuGet](https://img.shields.io/nuget/v/MathExtension.svg)](https://www.nuget.org/packages/MathExtension/)
+
 A .NET library that contains a Rational number class. This allows you to work with rational numbers
 without floating point errors.
 
 It also contains some useful mathematical functions, such as GCD.
-
-Available on [NuGet](https://www.nuget.org/packages/MathExtension/).
 
 ## Rational Numbers
 
@@ -21,7 +21,7 @@ There are a number of ways to create a `Rational` number:
 
     ```
     var r = (Rational)2 / 3; // = 2/3
-    var r = (Rational)2.5; // = 5/2
+    var r = (Rational)2.5;   // = 5/2
     ```
 3. Using a slightly nicer casting method:
 
@@ -38,4 +38,4 @@ There are a number of ways to create a `Rational` number:
 
 The `Rational` class works will all standard mathematical and comparison operators.
 
-Supported framework versions: 4.0, 4.5
+Supports .NET standard 1.1, .NET framework 4.0

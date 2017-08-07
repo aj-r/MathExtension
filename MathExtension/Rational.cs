@@ -1,19 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Text;
 
 namespace MathExtension
 {
     /// <summary>
     /// Represents a rational number.
     /// </summary>
+#if NET40
     [Serializable]
+#endif
     [TypeConverter(typeof(RationalConverter))]
     public struct Rational : IComparable, IComparable<Rational>, IEquatable<Rational>, IFormattable
     {
-        #region Members
+#region Members
 
         private readonly int _numerator;
         private readonly int _denominator;
@@ -76,9 +76,9 @@ namespace MathExtension
         /// </remarks>
         public static readonly Rational Epsilon = new Rational(1, int.MaxValue);
 
-        #endregion
+#endregion
 
-        #region Static Methods
+#region Static Methods
 
         /// <summary>
         /// Converts the string representation of a number to its <see cref="Rational"/> representation.
@@ -121,8 +121,7 @@ namespace MathExtension
         /// <returns>The parsed <see cref="Rational"/> value.</returns>
         public static Rational Parse(string s, NumberStyles style, IFormatProvider provider)
         {
-            Rational result;
-            TryParse(s, style, provider, true, out result);
+            TryParse(s, style, provider, true, out Rational result);
             return result;
         }
 
@@ -183,12 +182,10 @@ namespace MathExtension
                 return ParseFailure(throwOnFailure, out result);
             if (parts.Length == 1)
             {
-                int n;
-                if (!int.TryParse(s, style, provider, out n))
+                if (!int.TryParse(s, style, provider, out int n))
                 {
                     // Maybe the number is in decimal format. Try parsing as such.
-                    double d;
-                    if (!double.TryParse(s, style, provider, out d))
+                    if (!double.TryParse(s, style, provider, out double d))
                         return ParseFailure(throwOnFailure, out result);
                     result = FromDouble(d);
                     return true;
@@ -213,9 +210,8 @@ namespace MathExtension
                     return false;
                 }
             }
-            int numerator, denominator;
-            if (!TryParseInt(numeratorString, style, provider, throwOnFailure, out numerator)
-                || !TryParseInt(parts[1], style, provider, throwOnFailure, out denominator))
+            if (!TryParseInt(numeratorString, style, provider, throwOnFailure, out int numerator)
+                || !TryParseInt(parts[1], style, provider, throwOnFailure, out int denominator))
             {
                 result = Indeterminate;
                 return false;
@@ -408,11 +404,11 @@ namespace MathExtension
                 remainder = a;
                 return 0;
             }
-            int xNum = a._numerator * b._denominator;
-            int yNum = b._numerator * a._denominator;
+            var xNum = (long)a._numerator * b._denominator;
+            var yNum = (long)b._numerator * a._denominator;
             int denominator = a._denominator * b._denominator;
-            int rem;
-            var result = Math.DivRem(xNum, yNum, out rem);
+            var result = (int)(xNum / yNum);
+            var rem = (int)(xNum % yNum);
             remainder = Rational.Simplify(rem, denominator);
             return result;
         }
@@ -467,9 +463,9 @@ namespace MathExtension
             return r._numerator == 0 && r._denominator != 0;
         }
 
-        #endregion
+#endregion
 
-        #region Constructors
+#region Constructors
 
         /// <summary>
         /// Creates a new <see cref="Rational"/> instance with a denominator of 1.
@@ -499,9 +495,9 @@ namespace MathExtension
             this = FromDouble(value);
         }
 
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
 
         /// <summary>
         /// Gets the numerator of the current <see cref="Rational"/> value.
@@ -555,9 +551,9 @@ namespace MathExtension
             return new Rational(-Numerator, Denominator);
         }
 
-        #endregion
+#endregion
 
-        #region Instance Methods
+#region Instance Methods
 
         /// <summary>
         /// Gets the simplified version of the rational number.
@@ -721,9 +717,9 @@ namespace MathExtension
             }
         }
 
-        #endregion
+#endregion
 
-        #region Operators
+#region Operators
 
         /// <summary>
         /// Gets whether two <see cref="Rational"/> values are numerically equivalent.
@@ -907,8 +903,8 @@ namespace MathExtension
             if (x.Numerator == 0 || y.Numerator == 0)
                 return Zero;
 
-            var xNum = Math.BigMul(x.Numerator, y.Denominator);
-            var yNum = Math.BigMul(y.Numerator, x.Denominator);
+            var xNum = (long)x.Numerator * y.Denominator;
+            var yNum = (long)y.Numerator * x.Denominator;
             int denominator = x.Denominator * y.Denominator;
             return Rational.Simplify((int)(xNum % yNum), denominator);
         }
@@ -933,9 +929,9 @@ namespace MathExtension
             return x - Rational.One;
         }
 
-        #endregion
+#endregion
 
-        #region Casts
+#region Casts
 
         /// <summary>
         /// Converts the specified <see cref="Int32"/> to a <see cref="Rational"/>.
@@ -1158,9 +1154,9 @@ namespace MathExtension
             return (decimal)x.Numerator / (decimal)x.Denominator;
         }
 
-        #endregion
+#endregion
 
-        #region IComparable Members
+#region IComparable Members
 
         /// <summary>
         /// Compares this instance to another <see cref="Rational"/> and returns an indication of their relative values.
@@ -1169,9 +1165,8 @@ namespace MathExtension
         /// <returns>A signed number indicating the relative values of this instance and <paramref name="obj"/>.</returns>
         public int CompareTo(object obj)
         {
-            if (obj is Rational)
+            if (obj is Rational r)
             {
-                var r = (Rational)obj;
                 return CompareTo(r);
             }
             else
@@ -1182,9 +1177,9 @@ namespace MathExtension
             }
         }
 
-        #endregion
+#endregion
 
-        #region IComparable<Rational> Members
+#region IComparable<Rational> Members
 
         /// <summary>
         /// Compares this instance to another <see cref="Rational"/> and returns an indication of their relative values.
@@ -1203,15 +1198,14 @@ namespace MathExtension
             {
                 return other.Numerator == 0 ? 1 : -Math.Sign(other.Numerator);
             }
-            // Use BigMul to avoid losing data when multiplying large integers
-            long value1 = Math.BigMul(Numerator, other.Denominator);
-            long value2 = Math.BigMul(Denominator, other.Numerator);
+            long value1 = (long)Numerator * other.Denominator;
+            long value2 = (long)Denominator * other.Numerator;
             return value1.CompareTo(value2);
         }
 
-        #endregion
+#endregion
 
-        #region IFormattable Members
+#region IFormattable Members
 
         /// <summary>
         /// Converts this instance to its equivalent string representation.
@@ -1224,9 +1218,9 @@ namespace MathExtension
             return Numerator.ToString(format, formatProvider) + (Denominator != 1 ? "/" + Denominator.ToString(format, formatProvider) : string.Empty);
         }
 
-        #endregion
+#endregion
 
-        #region IEquatable<Rational> Members
+#region IEquatable<Rational> Members
 
         /// <summary>
         /// Indicates whether this instance and a specified <see cref="Rational"/> are equal.
@@ -1238,6 +1232,6 @@ namespace MathExtension
             return this == other;
         }
 
-        #endregion
+#endregion
     }
 }

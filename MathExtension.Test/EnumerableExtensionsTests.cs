@@ -1,8 +1,7 @@
-﻿using System;
+﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using Q = MathExtension.Rational;
-using System.Linq;
 
 namespace MathExtension.Test
 {
@@ -13,7 +12,6 @@ namespace MathExtension.Test
 
         public static TestCaseData[] minTestCases =
         {
-            new TestCaseData((object)new Q[0]).Throws(typeof(InvalidOperationException)),
             new TestCaseData((object)new [] { (Q)1 / 2 }).Returns((Q)1 / 2),
             new TestCaseData((object)new [] { (Q)1 / 2, (Q)2 / 5 }).Returns((Q)2 / 5),
             new TestCaseData((object)new [] { (Q)1 / 2, (Q)3 / 5 }).Returns((Q)1 / 2),
@@ -24,6 +22,11 @@ namespace MathExtension.Test
         public Q MinTests(IEnumerable<Q> source)
         {
             return source.Min();
+        }
+
+        public void MinTests_ThrowIfEmpty()
+        {
+            Assert.Throws<InvalidOperationException>(() => new Q[0].Min());
         }
 
         static TestCaseData[] minNullableTestCases =
@@ -58,7 +61,6 @@ namespace MathExtension.Test
 
         static TestCaseData[] minSelectorTestCases =
         {
-            new TestCaseData((object)new Tuple<Q>[0]).Throws(typeof(InvalidOperationException)),
             new TestCaseData((object)new Tuple<Q>[] { Tuple.Create((Q)1 / 2) }).Returns((Q)1 / 2),
             new TestCaseData((object)new Tuple<Q>[] { Tuple.Create((Q)1 / 2), Tuple.Create(-(Q)1 / 2), Tuple.Create((Q)0) }).Returns(-(Q)1 / 2),
         };
@@ -69,23 +71,32 @@ namespace MathExtension.Test
             return source.Min(t => t.Item1);
         }
 
+        public void MinSelectorTests_ThrowIfEmpty()
+        {
+            Assert.Throws<InvalidOperationException>(() => new Tuple<Q>[0].Min(t => t.Item1));
+        }
+
+        #endregion
+
+        #region Max
+
         public static TestCaseData[] maxTestCases =
         {
-            new TestCaseData((object)new Q[0]).Throws(typeof(InvalidOperationException)),
             new TestCaseData((object)new [] { (Q)1 / 2 }).Returns((Q)1 / 2),
             new TestCaseData((object)new [] { (Q)1 / 2, (Q)2 / 5 }).Returns((Q)1 / 2),
             new TestCaseData((object)new [] { (Q)1 / 2, (Q)3 / 5 }).Returns((Q)3 / 5),
             new TestCaseData((object)new [] { (Q)1 / 2, -(Q)1 / 2, (Q)0 }).Returns((Q)1 / 2),
         };
 
-        #endregion
-
-        #region Max
-
         [TestCaseSource("maxTestCases")]
         public Q MaxTests(IEnumerable<Q> source)
         {
             return source.Max();
+        }
+
+        public void MaxTests_ThrowIfEmpty()
+        {
+            Assert.Throws<InvalidOperationException>(() => new Q[0].Max());
         }
 
         static TestCaseData[] maxNullableTestCases =
@@ -120,7 +131,6 @@ namespace MathExtension.Test
 
         static TestCaseData[] maxSelectorTestCases =
         {
-            new TestCaseData((object)new Tuple<Q>[0]).Throws(typeof(InvalidOperationException)),
             new TestCaseData((object)new Tuple<Q>[] { Tuple.Create((Q)1 / 2) }).Returns((Q)1 / 2),
             new TestCaseData((object)new Tuple<Q>[] { Tuple.Create((Q)1 / 2), Tuple.Create(-(Q)1 / 2), Tuple.Create((Q)0) }).Returns((Q)1 / 2),
         };
@@ -129,6 +139,11 @@ namespace MathExtension.Test
         public Q MaxSelectorTests(IEnumerable<Tuple<Q>> source)
         {
             return source.Max(t => t.Item1);
+        }
+
+        public void MaxSelectorTests_ThrowIfEmpty()
+        {
+            Assert.Throws<InvalidOperationException>(() => new Tuple<Q>[0].Max(t => t.Item1));
         }
 
         #endregion

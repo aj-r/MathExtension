@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Reflection;
 
 namespace MathExtension
 {
@@ -127,7 +128,12 @@ namespace MathExtension
 
         private static bool IsNullableType(Type t)
         {
-            return (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>));
+#if NET40
+            var isGeneric = t.IsGenericType;
+#else
+            var isGeneric = t.GetTypeInfo().IsGenericType;
+#endif
+            return (isGeneric && t.GetGenericTypeDefinition() == typeof(Nullable<>));
         }
 
         private static Type GetUnderlyingType(Type t)

@@ -7,23 +7,23 @@ namespace MathExtension.Test
     [TestFixture]
     public class MathExTests
     {
-        [TestCase(1, 1, Result = 1)]
-        [TestCase(1, 574, Result = 1)]
-        [TestCase(38, 1, Result = 38)]
-        [TestCase(1, 0, Result = 1)]
-        [TestCase(38, 0, Result = 1)]
-        [TestCase(2, 2, Result = 4)]
-        [TestCase(2, 3, Result = 8)]
-        [TestCase(2, 4, Result = 16)]
-        [TestCase(2, 5, Result = 32)]
-        [TestCase(3, 5, Result = 243)]
-        [TestCase(3, 6, Result = 729)]
-        [TestCase(3, 7, Result = 2187)]
-        [TestCase(3, 8, Result = 6561)]
-        [TestCase(3, 9, Result = 19683)]
-        [TestCase(45, 2, Result = 2025)]
-        [TestCase(45, 3, Result = 91125)]
-        [TestCase(45, 7, Result = 373669453125)]
+        [TestCase(1, 1, ExpectedResult = 1)]
+        [TestCase(1, 574, ExpectedResult = 1)]
+        [TestCase(38, 1, ExpectedResult = 38)]
+        [TestCase(1, 0, ExpectedResult = 1)]
+        [TestCase(38, 0, ExpectedResult = 1)]
+        [TestCase(2, 2, ExpectedResult = 4)]
+        [TestCase(2, 3, ExpectedResult = 8)]
+        [TestCase(2, 4, ExpectedResult = 16)]
+        [TestCase(2, 5, ExpectedResult = 32)]
+        [TestCase(3, 5, ExpectedResult = 243)]
+        [TestCase(3, 6, ExpectedResult = 729)]
+        [TestCase(3, 7, ExpectedResult = 2187)]
+        [TestCase(3, 8, ExpectedResult = 6561)]
+        [TestCase(3, 9, ExpectedResult = 19683)]
+        [TestCase(45, 2, ExpectedResult = 2025)]
+        [TestCase(45, 3, ExpectedResult = 91125)]
+        [TestCase(45, 7, ExpectedResult = 373669453125)]
         public long PowerTest(long x, int y)
         {
             return MathEx.Pow(x, (uint)y);
@@ -40,13 +40,17 @@ namespace MathExtension.Test
             new TestCaseData((BigInteger)2209).Returns((BigInteger)47),
             new TestCaseData((BigInteger)2209).Returns((BigInteger)47),
             new TestCaseData(BigInteger.Parse("23974000248716731684")).Returns((BigInteger)4896325178),
-            new TestCaseData((BigInteger)(-1)).Throws(typeof(ArithmeticException)),
         };
 
         [TestCaseSource("sqrtTestCases")]
         public BigInteger SqrtTest(BigInteger x)
         {
             return MathEx.Sqrt(x);
+        }
+
+        public void SqrtTest_ThrowIfNegative()
+        {
+            Assert.Throws<ArithmeticException>(() => MathEx.Sqrt(-1));
         }
     }
 }
