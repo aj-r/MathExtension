@@ -10,6 +10,7 @@ namespace MathExtension
     /// </summary>
     public class RationalConverter : TypeConverter
     {
+        /// <inheritdoc />
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
             sourceType = GetUnderlyingType(sourceType);
@@ -29,6 +30,7 @@ namespace MathExtension
                 || sourceType == typeof(bool);
         }
 
+        /// <inheritdoc />
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             if (value == null)
@@ -64,6 +66,7 @@ namespace MathExtension
             throw new ArgumentException("Inavlid value type: " + value.GetType().FullName, "value");
         }
 
+        /// <inheritdoc />
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             destinationType = GetUnderlyingType(destinationType);
@@ -83,6 +86,7 @@ namespace MathExtension
                 || destinationType == typeof(bool);
         }
 
+        /// <inheritdoc />
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (value == null)
