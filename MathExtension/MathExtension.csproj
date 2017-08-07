@@ -5,10 +5,12 @@
     <TargetFrameworks>netstandard1.1;net40</TargetFrameworks>
     <Description>Contains a Rational class for working with rational numbers without floating point errors. Also contains some useful mathematical functions, such as GCD.</Description>
     <Authors>AJ Richardson</Authors>
-    <ProjectUrl>https://github.com/aj-r/MathExtension</ProjectUrl>
-    <LicenseUrl>https://github.com/aj-r/MathExtension/blob/master/LICENSE</LicenseUrl>
-    <Tags>math rational fraction</Tags>
+    <PackageProjectUrl>https://github.com/aj-r/MathExtension</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/aj-r/MathExtension/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageTags>math, rational, fraction</PackageTags>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <IncludeSource>True</IncludeSource>
+    <IncludeSymbols>True</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>
